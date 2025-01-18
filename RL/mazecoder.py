@@ -22,4 +22,4 @@ matrix = np.where(resized < 200, 1, 0)  # Adjust threshold as needed
 
 sns.heatmap(matrix)
 plt.show()
-np.savetxt('matrix.csv', matrix, delimiter=',', fmt='%d')
+np.savetxt('RL\Maze_LR\matrix.csv', matrix, delimiter=',', fmt='%d')
