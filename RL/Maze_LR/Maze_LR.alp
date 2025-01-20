@@ -37,7 +37,7 @@ import maze_lr.RLExperiment.Configuration;
 import maze_lr.RLExperiment.Observation;]]></Import>
 			<StartupCode><![CDATA[slipRNG = slipChanceSeed == null ? new Random() : new Random(slipChanceSeed);
 traceln(singlewalls.size());
-Read_Maze_Matrix();
+//Read_Maze_Matrix();
 int rows=matrix.size();
 int num_walls=0;
 int holes=0;
@@ -96,10 +96,8 @@ if (agent != null) {
 }
 goals++;
 }
-else if (matrix.get(i)[j]==1){
-if (!finded){
-if (randomTrue(0.05))
-{
+else if (matrix.get(i)[j]==4){
+
 if (agent != null) {
     agent.setCell(70, 70);
     int c=explorers.get(explorere_num).getC();
@@ -114,12 +112,10 @@ if (agent != null) {
     explorers.get(explorere_num).wall.setZHeight(2);
 }
 explorere_num++;
-finded=true;
 }
 }
 }
-}
-}
+
 ]]></StartupCode>
 			<Generic>false</Generic>
 			<GenericParameter>
@@ -213,25 +209,10 @@ finded=true;
 			<CurrentLevel>1737062037419</CurrentLevel>
 			<ConnectionsId>1737062037413</ConnectionsId>
 			<Variables>
-				<Variable Class="PlainVariable">
-					<Id>1737065685325</Id>
-					<Name><![CDATA[matrix]]></Name>
-					<X>-130</X><Y>60</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[List<int[]>]]></Type>        
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[new ArrayList<>()]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
 				<Variable Class="Parameter">
 					<Id>1737220367846</Id>
 					<Name><![CDATA[num_wall]]></Name>
-					<X>-400</X><Y>60</Y>
+					<X>-400</X><Y>20</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -252,7 +233,7 @@ finded=true;
 				<Variable Class="Parameter">
 					<Id>1737240254277</Id>
 					<Name><![CDATA[num_hole]]></Name>
-					<X>-400</X><Y>90</Y>
+					<X>-400</X><Y>50</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -273,7 +254,7 @@ finded=true;
 				<Variable Class="Parameter">
 					<Id>1737242297774</Id>
 					<Name><![CDATA[num_goal]]></Name>
-					<X>-400</X><Y>120</Y>
+					<X>-400</X><Y>80</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -294,7 +275,7 @@ finded=true;
 				<Variable Class="Parameter">
 					<Id>1737245649240</Id>
 					<Name><![CDATA[slipChance]]></Name>
-					<X>-400</X><Y>160</Y>
+					<X>-400</X><Y>110</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>false</PresentationFlag>
@@ -319,7 +300,7 @@ finded=true;
 				<Variable Class="Parameter">
 					<Id>1737246503204</Id>
 					<Name><![CDATA[slipChanceSeed]]></Name>
-					<X>-400</X><Y>190</Y>
+					<X>-400</X><Y>140</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>false</PresentationFlag>
@@ -341,6 +322,30 @@ finded=true;
 						</ParameterEditor>
 					</Properties>                 
 				</Variable>
+				<Variable Class="Parameter">
+					<Id>1737389837869</Id>
+					<Name><![CDATA[matrix]]></Name>
+					<X>-400</X><Y>170</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
+						<Type><![CDATA[List<int[]>]]></Type>
+						<UnitType><![CDATA[NONE]]></UnitType>
+						<SdArray>false</SdArray>
+						<DefaultValue Class="CodeValue">
+							<Code><![CDATA[new ArrayList<>()]]></Code>
+						</DefaultValue>
+						<ParameterEditor>
+							<Id>1737389837867</Id>
+							<EditorContolType>TEXT_BOX</EditorContolType>
+							<MinSliderValue><![CDATA[0]]></MinSliderValue>
+							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
+							<DelimeterType>NO_DELIMETER</DelimeterType>
+						</ParameterEditor>
+					</Properties>                 
+				</Variable>
 				<Variable Class="CollectionVariable">
 					<Id>1737246115202</Id>
 					<Name><![CDATA[VALID_DIRECTIONS]]></Name>
@@ -354,7 +359,7 @@ finded=true;
 						<ElementClass><![CDATA[CellDirection]]></ElementClass>
 						<ValueElementClass><![CDATA[String]]></ValueElementClass>
 						<CollectionInitializer Class="CodeValue">
-							<Code><![CDATA[{EAST, SOUTH, WEST, NORTH}]]></Code>
+							<Code><![CDATA[{EAST, SOUTH, WEST, NORTH, NORTHEAST,NORTHWEST,SOUTHEAST,SOUTHWEST }]]></Code>
 						</CollectionInitializer>
 					</Properties>
 
@@ -453,7 +458,7 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 				<EmbeddedObject>
 					<Id>1737223820740</Id>
 					<Name><![CDATA[singlewalls]]></Name>
-					<X>-270</X><Y>60</Y>
+					<X>-210</X><Y>30</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -515,7 +520,7 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 				<EmbeddedObject>
 					<Id>1737244472619</Id>
 					<Name><![CDATA[singleholes]]></Name>
-					<X>-270</X><Y>90</Y>
+					<X>-210</X><Y>60</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -577,7 +582,7 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 				<EmbeddedObject>
 					<Id>1737244800483</Id>
 					<Name><![CDATA[singlegoal]]></Name>
-					<X>-270</X><Y>120</Y>
+					<X>-210</X><Y>90</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -639,7 +644,7 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 				<EmbeddedObject>
 					<Id>1737245204505</Id>
 					<Name><![CDATA[explorers]]></Name>
-					<X>-270</X><Y>150</Y>
+					<X>-210</X><Y>120</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -762,7 +767,7 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 				<EmbeddedObjectPresentation>
 					<Id>1737244472621</Id>
 					<Name><![CDATA[singleholes_presentation]]></Name>
-					<X>-170</X><Y>90</Y>
+					<X>-110</X><Y>60</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -781,7 +786,7 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 				<EmbeddedObjectPresentation>
 					<Id>1737244800485</Id>
 					<Name><![CDATA[singlegoal_presentation]]></Name>
-					<X>-170</X><Y>120</Y>
+					<X>-110</X><Y>90</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -800,7 +805,7 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 				<EmbeddedObjectPresentation>
 					<Id>1737245204507</Id>
 					<Name><![CDATA[explorers_presentation]]></Name>
-					<X>-170</X><Y>150</Y>
+					<X>-110</X><Y>120</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1436,7 +1441,7 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1737245324957</Id>
 					<Name><![CDATA[tryMove]]></Name>
-					<X>320</X><Y>-100</Y>
+					<X>230</X><Y>-90</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1763,6 +1768,12 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 				<Parameter>
 					<ParameterName><![CDATA[slipChanceSeed]]></ParameterName>
 				</Parameter>
+				<Parameter>
+					<ParameterName><![CDATA[matrix]]></ParameterName>
+					<ParameterValue Class="CodeValue">
+						<Code><![CDATA[matrix]]></Code>
+					</ParameterValue>
+				</Parameter>
 			</Parameters>			
 			<PresentationProperties>
 				<EnableZoomAndPanning>true</EnableZoomAndPanning>
@@ -1826,7 +1837,32 @@ pos = new int[]{root.explorers.get(0).getSpace().getR(), root.explorers.get(0).g
 				<Name><![CDATA[slipchance]]></Name>
 				<Type><![CDATA[double]]></Type>
 			</ConfigurationField>
-			<ConfigurationCode><![CDATA[root.slipChance=slipchance;]]></ConfigurationCode>
+			<ConfigurationField>
+				<Name><![CDATA[slipChanceSeed]]></Name>
+				<Type><![CDATA[Long]]></Type>
+			</ConfigurationField>
+			<ConfigurationField>
+				<Name><![CDATA[num_goal]]></Name>
+				<Type><![CDATA[int]]></Type>
+			</ConfigurationField>
+			<ConfigurationField>
+				<Name><![CDATA[num_wall]]></Name>
+				<Type><![CDATA[int]]></Type>
+			</ConfigurationField>
+			<ConfigurationField>
+				<Name><![CDATA[num_hole]]></Name>
+				<Type><![CDATA[int]]></Type>
+			</ConfigurationField>
+			<ConfigurationField>
+				<Name><![CDATA[matrix]]></Name>
+				<Type><![CDATA[List<int[]>]]></Type>
+			</ConfigurationField>
+			<ConfigurationCode><![CDATA[root.num_wall=num_wall;
+root.num_hole=num_hole;
+root.num_goal=num_goal;
+root.slipChance = slipchance;
+root.slipChanceSeed = slipChanceSeed;
+root.matrix=matrix;]]></ConfigurationCode>
 		</ReinforcementLearningExperiment>
 	</Experiments>
     <RequiredLibraryReference>
