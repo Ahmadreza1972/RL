@@ -7,6 +7,6 @@ How to open database in external tools:
 3. Ensure the tool has hsqldb.jar driver installed (if no, use this one: lib/hsqldb-2.7.1.jar)
 4. Connect to the database using the following url:
 
-jdbc:hsqldb:file:C:\Users\ahmad\AppData\Local\Temp\temp_model_dir6809182446684572087\database\db
+jdbc:hsqldb:file:C:\Users\ahmad\AppData\Local\Temp\temp_model_dir4134827031355351255\database\db
 
 5. After finished, disconnect the tool and run the model if needed.
