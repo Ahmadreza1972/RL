@@ -60,7 +60,7 @@ class PathfinderTrainer:
             if do_log:
                 print(f"\nEPISODE {episode} / {n_eps}")
 
-            # reset the environment, using default engine engine_settings
+            #reset the environment, using default engine engine_settings
             this_config = deepcopy(self.config_kwargs)
             if config_overrides:
                 this_config.update(config_overrides)
@@ -143,7 +143,8 @@ if __name__ == "__main__":
                 num_holes+=1
             elif matrixs[i][j]==3:
                 num_goals+=1
-    config = dict(slipchance=0.0,slipChanceSeed=None,num_goal=num_goals,num_wall=num_walls,num_hole=num_holes,matrix=matrixs)
+    new_matrixs= [row.tolist() for row in matrixs]
+    config = dict(slipchance=0.0,slipChanceSeed=0,num_goal=num_goals,num_wall=num_walls,num_hole=num_holes,matrix=new_matrixs)
     trainer = PathfinderTrainer(sim, config,
                                 lr=0.7,
                                 gamma=0.6,

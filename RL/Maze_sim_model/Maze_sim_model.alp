@@ -36,7 +36,6 @@ import java.util.stream.IntStream;
 import maze_lr.RLExperiment.Configuration;
 import maze_lr.RLExperiment.Observation;]]></Import>
 			<StartupCode><![CDATA[slipRNG = slipChanceSeed == null ? new Random() : new Random(slipChanceSeed);
-traceln(singlewalls.size());
 //Read_Maze_Matrix();
 int rows=matrix.size();
 int num_walls=0;
@@ -169,6 +168,21 @@ agent.wall.setColor(red);
 			<CurrentLevel>1737062037419</CurrentLevel>
 			<ConnectionsId>1737062037413</ConnectionsId>
 			<Variables>
+				<Variable Class="PlainVariable">
+					<Id>1737466958231</Id>
+					<Name><![CDATA[curr_step]]></Name>
+					<X>-220</X><Y>200</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
 				<Variable Class="Parameter">
 					<Id>1737220367846</Id>
 					<Name><![CDATA[num_wall]]></Name>
@@ -306,6 +320,27 @@ agent.wall.setColor(red);
 						</ParameterEditor>
 					</Properties>                 
 				</Variable>
+				<Variable Class="Parameter">
+					<Id>1737466596324</Id>
+					<Name><![CDATA[Max_steps]]></Name>
+					<X>-400</X><Y>200</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
+						<Type><![CDATA[double]]></Type>
+						<UnitType><![CDATA[NONE]]></UnitType>
+						<SdArray>false</SdArray>
+						<ParameterEditor>
+							<Id>1737466596322</Id>
+							<EditorContolType>TEXT_BOX</EditorContolType>
+							<MinSliderValue><![CDATA[0]]></MinSliderValue>
+							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
+							<DelimeterType>NO_DELIMETER</DelimeterType>
+						</ParameterEditor>
+					</Properties>                 
+				</Variable>
 				<Variable Class="CollectionVariable">
 					<Id>1737246115202</Id>
 					<Name><![CDATA[VALID_DIRECTIONS]]></Name>
@@ -329,7 +364,7 @@ agent.wall.setColor(red);
 				<Event>
 					<Id>1737246715802</Id>
 					<Name><![CDATA[action]]></Name>
-					<X>-400</X><Y>230</Y>
+					<X>-400</X><Y>250</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -351,11 +386,15 @@ agent.wall.setColor(red);
 						</OccurrenceTime>
 						<RecurrenceCode Class="CodeUnitValue">
 							<Code><![CDATA[1]]></Code>
-							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
+							<Unit Class="TimeUnits"><![CDATA[SECOND]]></Unit>
 						</RecurrenceCode>
 						<Condition><![CDATA[false]]></Condition>
 					</Properties>
-					<Action><![CDATA[agent.tryMove(randomFrom(VALID_DIRECTIONS, new Random()));]]></Action>
+					<Action><![CDATA[if (curr_step<Max_steps)
+agent.tryMove(randomFrom(VALID_DIRECTIONS, new Random()).toString());
+else if (curr_step>=Max_steps)
+	finishSimulation();
+curr_step++;]]></Action>
 				</Event>
 			</Events>
 			<Functions>
@@ -604,7 +643,7 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 				<EmbeddedObject>
 					<Id>1737423651913</Id>
 					<Name><![CDATA[agent]]></Name>
-					<X>-210</X><Y>130</Y>
+					<X>-210</X><Y>120</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1360,16 +1399,18 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 					<ShowLabel>true</ShowLabel>
 					<Parameter>
 						<Name><![CDATA[dir]]></Name>
-						<Type><![CDATA[CellDirection]]></Type>
+						<Type><![CDATA[String]]></Type>
 					</Parameter>
 					<Body><![CDATA[
 // convert 'dir' to the slipped direction with the appropriate chance
-CellDirection actualDir = randomTrue(main.slipChance, main.slipRNG) ? randomFrom(main.VALID_DIRECTIONS, main.slipRNG) : dir;
+String actualDir = randomTrue(main.slipChance, main.slipRNG) ? randomFrom(main.VALID_DIRECTIONS, main.slipRNG).toString() : dir;
 traceln(actualDir);
-future_pos=change_position(actualDir,main.agent.getX(),main.agent.getY());
-main.agent.getSpace() instanceof Hole 
+int [] future_pos=change_position(actualDir,(int) main.agent.getX(),(int) main.agent.getY());
+if (main.matrix.get(future_pos[0])[future_pos[1]]!=0)
+main.agent.setXY(future_pos[0], future_pos[1]);
+/*main.agent.getSpace() instanceof Hole 
 main.agent.getSpace() instanceof Goal
-main.agent.getSpace() instanceof singlewall
+main.agent.getSpace() instanceof singlewall*/
 ]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -1632,6 +1673,21 @@ num_goal=num_goals;]]></InitialSetupCode>
 						<Type><![CDATA[int]]></Type>        
 					</Properties>
 				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1737466898058</Id>
+					<Name><![CDATA[max_step]]></Name>
+					<X>280</X><Y>210</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[100]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
 			</Variables>
 			<Functions>
 				<Function AccessType="default" StaticFunction="false">
@@ -1723,6 +1779,12 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 						<Code><![CDATA[matrix]]></Code>
 					</ParameterValue>
 				</Parameter>
+				<Parameter>
+					<ParameterName><![CDATA[Max_steps]]></ParameterName>
+					<ParameterValue Class="CodeValue">
+						<Code><![CDATA[max_step]]></Code>
+					</ParameterValue>
+				</Parameter>
 			</Parameters>			
 			<PresentationProperties>
 				<EnableZoomAndPanning>true</EnableZoomAndPanning>
@@ -1781,7 +1843,7 @@ pos = new int[]{root.agent.getSpace().getR(), root.agent.getSpace().getC()};]]><
 				<Name><![CDATA[dir]]></Name>
 				<Type><![CDATA[String]]></Type>
 			</ActionField>
-			<ActionCode><![CDATA[root.agent.tryMove(CellDirection.valueOf(dir));]]></ActionCode>
+			<ActionCode><![CDATA[root.agent.tryMove(CellDirection.valueOf(dir).toString());]]></ActionCode>
 			<ConfigurationField>
 				<Name><![CDATA[slipchance]]></Name>
 				<Type><![CDATA[double]]></Type>
