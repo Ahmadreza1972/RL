@@ -44,75 +44,35 @@ int holes=0;
 int goals=0;
 boolean finded=false;
 int explorere_num=0;
+Hole new_hole;
+Goal new_goal;
+singlewall wall;
 
 for (int i=0; i<rows;i++){
 int column=matrix.get(i).length;
 for (int j=0;j<column;j++){
-Agent agent = getAgentAtCell(i, j);
+
+if (matrix.get(i)[j]==2){
+new_hole=add_singleholes();
+new_hole.setXY(i, j);
+new_hole.wall.setColor(black);
+}
 
 if (matrix.get(i)[j]==0){
-if (agent != null) {
-    agent.setCell(70, 70);
-    int c=singlewalls.get(num_walls).getC();
-    int r=singlewalls.get(num_walls).getR();
-    singlewalls.get(num_walls).setCell(i, j);
-    agent.setCell(r,c);
-} else {
-    singlewalls.get(num_walls).setCell(i, j);
+wall=add_singlewalls();
+wall.setXY(i, j);
 }
-num_walls++;
-}
-else if (matrix.get(i)[j]==2){
-if (agent != null) {
-    agent.setCell(70, 70);
-    int c=singleholes.get(holes).getC();
-    int r=singleholes.get(holes).getR();
-    singleholes.get(holes).setCell(i, j);
-    singleholes.get(holes).wall.setColor(black);
-    singleholes.get(holes).wall.setZHeight(0.5);
-    agent.setCell(r,c);
-} else {
-    singleholes.get(holes).setCell(i, j);
-    singleholes.get(holes).wall.setColor(black);
-    singleholes.get(holes).wall.setZHeight(0.5);
-}
-holes++;
 
+if (matrix.get(i)[j]==3){
+new_goal=add_singlegoal();
+new_goal.setXY(i, j);
+new_goal.wall.setColor(green);
 }
-else if (matrix.get(i)[j]==3){
+if (matrix.get(i)[j]==4){
+agent.setXY(i, j);
+agent.wall.setColor(red);
+}
 
-if (agent != null) {
-    agent.setCell(70, 70);
-    int c=singlegoal.get(goals).getC();
-    int r=singlegoal.get(goals).getR();
-    singlegoal.get(goals).setCell(i, j);
-    singlegoal.get(goals).wall.setColor(green);
-    singlegoal.get(goals).wall.setZHeight(0.5);
-    agent.setCell(r,c);
-} else {
-    singlegoal.get(goals).setCell(i, j);
-    singlegoal.get(goals).wall.setColor(green);
-    singlegoal.get(goals).wall.setZHeight(0.5);
-}
-goals++;
-}
-else if (matrix.get(i)[j]==4){
-
-if (agent != null) {
-    agent.setCell(70, 70);
-    int c=explorers.get(explorere_num).getC();
-    int r=explorers.get(explorere_num).getR();
-    explorers.get(explorere_num).setCell(i, j);
-    explorers.get(explorere_num).wall.setColor(red);
-    explorers.get(explorere_num).wall.setZHeight(2);
-    agent.setCell(r,c);
-} else {
-    explorers.get(explorere_num).setCell(i, j);
-    explorers.get(explorere_num).wall.setColor(red);
-    explorers.get(explorere_num).wall.setZHeight(2);
-}
-explorere_num++;
-}
 }
 }
 
@@ -161,7 +121,7 @@ explorere_num++;
 						<Code><![CDATA[1.0]]></Code>
 						<Unit Class="TimeUnits"><![CDATA[SECOND]]></Unit>
 					</StepDurationCode>
-					<SpaceType>DISCRETE</SpaceType>
+					<SpaceType>CONTINUOUS</SpaceType>
 					<WidthCode><![CDATA[60]]></WidthCode>
 					<HeightCode><![CDATA[60]]></HeightCode>
 					<ZHeightCode><![CDATA[0]]></ZHeightCode>
@@ -285,7 +245,7 @@ explorere_num++;
 						<UnitType><![CDATA[NONE]]></UnitType>
 						<SdArray>false</SdArray>
 						<DefaultValue Class="CodeValue">
-							<Code><![CDATA[0.0]]></Code>
+							<Code><![CDATA[0.2]]></Code>
 						</DefaultValue>
 						<ParameterEditor>
 							<Id>1737245649238</Id>
@@ -349,7 +309,7 @@ explorere_num++;
 				<Variable Class="CollectionVariable">
 					<Id>1737246115202</Id>
 					<Name><![CDATA[VALID_DIRECTIONS]]></Name>
-					<X>-390</X><Y>280</Y>
+					<X>-390</X><Y>290</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>false</PresentationFlag>
@@ -369,7 +329,7 @@ explorere_num++;
 				<Event>
 					<Id>1737246715802</Id>
 					<Name><![CDATA[action]]></Name>
-					<X>-400</X><Y>220</Y>
+					<X>-400</X><Y>230</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -391,11 +351,11 @@ explorere_num++;
 						</OccurrenceTime>
 						<RecurrenceCode Class="CodeUnitValue">
 							<Code><![CDATA[1]]></Code>
-							<Unit Class="TimeUnits"><![CDATA[SECOND]]></Unit>
+							<Unit Class="TimeUnits"><![CDATA[MINUTE]]></Unit>
 						</RecurrenceCode>
 						<Condition><![CDATA[false]]></Condition>
 					</Properties>
-					<Action><![CDATA[RLExperiment.takeAction(this);]]></Action>
+					<Action><![CDATA[agent.tryMove(randomFrom(VALID_DIRECTIONS, new Random()));]]></Action>
 				</Event>
 			</Events>
 			<Functions>
@@ -404,7 +364,7 @@ explorere_num++;
 					<ReturnType><![CDATA[double]]></ReturnType>
 					<Id>1737062055522</Id>
 					<Name><![CDATA[Read_Maze_Matrix]]></Name>
-					<X>-200</X><Y>280</Y>
+					<X>-220</X><Y>290</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -456,14 +416,14 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 
 			<EmbeddedObjects>
 				<EmbeddedObject>
-					<Id>1737223820740</Id>
+					<Id>1737423284846</Id>
 					<Name><![CDATA[singlewalls]]></Name>
-					<X>-210</X><Y>30</Y>
+					<X>-210</X><Y>20</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<PresentationId>1737223820742</PresentationId>
+					<PresentationId>1737423284848</PresentationId>
 					<ActiveObjectClass>
 						<PackageName><![CDATA[maze_lr]]></PackageName>
 						<ClassName><![CDATA[singlewall]]></ClassName>
@@ -508,7 +468,7 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 					<LocationNameCode Class="CodeValue">
 						<Code><![CDATA[""]]></Code>
 					</LocationNameCode>
-					<InitializationType>SPECIFIED_NUMBER</InitializationType>
+					<InitializationType>EMPTY</InitializationType>
 					<InitializationDatabaseTableQuery>
 						<TableReference>
 						</TableReference>
@@ -518,14 +478,14 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 					</QuantityColumn>
 				</EmbeddedObject>
 				<EmbeddedObject>
-					<Id>1737244472619</Id>
+					<Id>1737423409319</Id>
 					<Name><![CDATA[singleholes]]></Name>
-					<X>-210</X><Y>60</Y>
+					<X>-210</X><Y>50</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<PresentationId>1737244472621</PresentationId>
+					<PresentationId>1737423409321</PresentationId>
 					<ActiveObjectClass>
 						<PackageName><![CDATA[maze_lr]]></PackageName>
 						<ClassName><![CDATA[Hole]]></ClassName>
@@ -570,7 +530,7 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 					<LocationNameCode Class="CodeValue">
 						<Code><![CDATA[""]]></Code>
 					</LocationNameCode>
-					<InitializationType>SPECIFIED_NUMBER</InitializationType>
+					<InitializationType>EMPTY</InitializationType>
 					<InitializationDatabaseTableQuery>
 						<TableReference>
 						</TableReference>
@@ -580,14 +540,14 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 					</QuantityColumn>
 				</EmbeddedObject>
 				<EmbeddedObject>
-					<Id>1737244800483</Id>
+					<Id>1737423505642</Id>
 					<Name><![CDATA[singlegoal]]></Name>
-					<X>-210</X><Y>90</Y>
+					<X>-210</X><Y>80</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<PresentationId>1737244800485</PresentationId>
+					<PresentationId>1737423505644</PresentationId>
 					<ActiveObjectClass>
 						<PackageName><![CDATA[maze_lr]]></PackageName>
 						<ClassName><![CDATA[Goal]]></ClassName>
@@ -632,7 +592,7 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 					<LocationNameCode Class="CodeValue">
 						<Code><![CDATA[""]]></Code>
 					</LocationNameCode>
-					<InitializationType>SPECIFIED_NUMBER</InitializationType>
+					<InitializationType>EMPTY</InitializationType>
 					<InitializationDatabaseTableQuery>
 						<TableReference>
 						</TableReference>
@@ -642,30 +602,30 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 					</QuantityColumn>
 				</EmbeddedObject>
 				<EmbeddedObject>
-					<Id>1737245204505</Id>
-					<Name><![CDATA[explorers]]></Name>
-					<X>-210</X><Y>120</Y>
+					<Id>1737423651913</Id>
+					<Name><![CDATA[agent]]></Name>
+					<X>-210</X><Y>130</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
 					<ShowLabel>true</ShowLabel>
-					<PresentationId>1737245204507</PresentationId>
+					<PresentationId>1737423651915</PresentationId>
 					<ActiveObjectClass>
 						<PackageName><![CDATA[maze_lr]]></PackageName>
-						<ClassName><![CDATA[explorer]]></ClassName>
+						<ClassName><![CDATA[Myagent]]></ClassName>
 					</ActiveObjectClass>
 					<GenericParameterSubstitute>
 						<GenericParameterSubstituteReference>
 							<PackageName><![CDATA[maze_lr]]></PackageName>
-							<ClassName><![CDATA[explorer]]></ClassName>
-							<ItemName><![CDATA[1737245133053]]></ItemName>
+							<ClassName><![CDATA[Myagent]]></ClassName>
+							<ItemName><![CDATA[1737408492476]]></ItemName>
 						</GenericParameterSubstituteReference>
 					</GenericParameterSubstitute>
 					<Parameters>
 					</Parameters>
-					<ReplicationFlag>true</ReplicationFlag>
+					<ReplicationFlag>false</ReplicationFlag>
 					<Replication Class="CodeValue">
-						<Code><![CDATA[1]]></Code>
+						<Code><![CDATA[100]]></Code>
 					</Replication>
 					<CollectionType>ARRAY_LIST_BASED</CollectionType>
 					<InEnvironment>true</InEnvironment>	
@@ -719,20 +679,6 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 					<LevelVisibility>DIM_NON_CURRENT</LevelVisibility>
 
 			<Presentation>
-				<Control Type="Window3D">
-					<Id>1737068320596</Id>
-					<Name><![CDATA[window3d]]></Name>
-					<X>0</X><Y>100</Y>
-					<Width>500</Width>
-					<Height>300</Height>
-					<MakeDefaultViewArea>true</MakeDefaultViewArea>
-					<Label><X>0</X><Y>-10</Y></Label>
-					<ShowLabel>false</ShowLabel>
-					<FollowCamera>false</FollowCamera>
-					<NavigationType>full</NavigationType>
-					<FarClippingDistance>2000</FarClippingDistance>
-					<Camera>camera</Camera>
-				</Control>
 				<Camera3D>
 					<Id>1737226685591</Id>
 					<Name><![CDATA[camera]]></Name>
@@ -746,9 +692,9 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 
 				</Level>
 				<EmbeddedObjectPresentation>
-					<Id>1737223820742</Id>
+					<Id>1737423284848</Id>
 					<Name><![CDATA[singlewalls_presentation]]></Name>
-					<X>-20</X><Y>-20</Y>
+					<X>-110</X><Y>160</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -765,9 +711,9 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 					<Longitude>0.0</Longitude>
 				</EmbeddedObjectPresentation>
 				<EmbeddedObjectPresentation>
-					<Id>1737244472621</Id>
+					<Id>1737423409321</Id>
 					<Name><![CDATA[singleholes_presentation]]></Name>
-					<X>-110</X><Y>60</Y>
+					<X>-110</X><Y>160</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -784,9 +730,9 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 					<Longitude>0.0</Longitude>
 				</EmbeddedObjectPresentation>
 				<EmbeddedObjectPresentation>
-					<Id>1737244800485</Id>
+					<Id>1737423505644</Id>
 					<Name><![CDATA[singlegoal_presentation]]></Name>
-					<X>-110</X><Y>90</Y>
+					<X>-110</X><Y>150</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -803,9 +749,9 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 					<Longitude>0.0</Longitude>
 				</EmbeddedObjectPresentation>
 				<EmbeddedObjectPresentation>
-					<Id>1737245204507</Id>
-					<Name><![CDATA[explorers_presentation]]></Name>
-					<X>-110</X><Y>120</Y>
+					<Id>1737423651915</Id>
+					<Name><![CDATA[agent_presentation]]></Name>
+					<X>-110</X><Y>130</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>true</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -872,7 +818,7 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 						<Code><![CDATA[1.0]]></Code>
 						<Unit Class="TimeUnits"><![CDATA[SECOND]]></Unit>
 					</StepDurationCode>
-					<SpaceType>DISCRETE</SpaceType>
+					<SpaceType>CONTINUOUS</SpaceType>
 					<WidthCode><![CDATA[500]]></WidthCode>
 					<HeightCode><![CDATA[500]]></HeightCode>
 					<ZHeightCode><![CDATA[0]]></ZHeightCode>
@@ -972,7 +918,7 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 
 			<Presentation>
 				<RectangleWall>
-					<Id>1737223754536</Id>
+					<Id>1737423333841</Id>
 					<Name><![CDATA[wall]]></Name>
 					<X>0</X><Y>0</Y>
 					<Label><X>10</X><Y>0</Y></Label>
@@ -1000,6 +946,10 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 		<ActiveObjectClass>
 			<Id>1737244393834</Id>
 			<Name><![CDATA[Hole]]></Name>
+			<ExtendsReference>
+				<PackageName><![CDATA[maze_lr]]></PackageName>
+				<ClassName><![CDATA[singlewall]]></ClassName>
+			</ExtendsReference>
 			<Generic>false</Generic>
 			<GenericParameter>
 				<Id>1737244393840</Id>
@@ -1142,27 +1092,6 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 					<Z>0</Z>
 					<LevelVisibility>DIM_NON_CURRENT</LevelVisibility>
 
-			<Presentation>
-				<RectangleWall>
-					<Id>1737244402697</Id>
-					<Name><![CDATA[wall]]></Name>
-					<X>0</X><Y>0</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<Z>0</Z>
-					<LineColor>-16777216</LineColor>
-					<LineWidth>1</LineWidth>
-					<LineMaterial>null</LineMaterial>
-					<FillingType>HATCHED_AREA</FillingType>
-					<ZHeight>0.5</ZHeight>
-					<Rotation>0.0</Rotation>
-					<Width>1</Width>
-					<Height>1</Height>
-				</RectangleWall>
-			</Presentation>
 
 				</Level>
 			</Presentation>
@@ -1172,6 +1101,10 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 		<ActiveObjectClass>
 			<Id>1737244579567</Id>
 			<Name><![CDATA[Goal]]></Name>
+			<ExtendsReference>
+				<PackageName><![CDATA[maze_lr]]></PackageName>
+				<ClassName><![CDATA[singlewall]]></ClassName>
+			</ExtendsReference>
 			<Generic>false</Generic>
 			<GenericParameter>
 				<Id>1737244579573</Id>
@@ -1314,27 +1247,6 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 					<Z>0</Z>
 					<LevelVisibility>DIM_NON_CURRENT</LevelVisibility>
 
-			<Presentation>
-				<RectangleWall>
-					<Id>1737244587019</Id>
-					<Name><![CDATA[wall]]></Name>
-					<X>0</X><Y>0</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>true</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>false</ShowLabel>
-					<DrawMode>SHAPE_DRAW_2D3D</DrawMode>
-					<Z>0</Z>
-					<LineColor>-16711936</LineColor>
-					<LineWidth>1</LineWidth>
-					<LineMaterial>null</LineMaterial>
-					<FillingType>HATCHED_AREA</FillingType>
-					<ZHeight>2</ZHeight>
-					<Rotation>0.0</Rotation>
-					<Width>1</Width>
-					<Height>1</Height>
-				</RectangleWall>
-			</Presentation>
 
 				</Level>
 			</Presentation>
@@ -1342,12 +1254,12 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 		</ActiveObjectClass>
 		<!--   =========   Active Object Class   ========  -->
 		<ActiveObjectClass>
-			<Id>1737245133047</Id>
-			<Name><![CDATA[explorer]]></Name>
+			<Id>1737408492470</Id>
+			<Name><![CDATA[Myagent]]></Name>
 			<Generic>false</Generic>
 			<GenericParameter>
-				<Id>1737245133053</Id>
-				<Name><![CDATA[1737245133053]]></Name>
+				<Id>1737408492476</Id>
+				<Name><![CDATA[1737408492476]]></Name>
 				<GenericParameterValue Class="CodeValue">
 					<Code><![CDATA[T extends Agent]]></Code>
 				</GenericParameterValue>
@@ -1407,7 +1319,7 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 			<DatasetsCreationProperties>
 				<AutoCreate>true</AutoCreate>
 					<OccurrenceAtTime>true</OccurrenceAtTime>
-					<OccurrenceDate>1737273600000</OccurrenceDate>
+					<OccurrenceDate>1737446400000</OccurrenceDate>
 					<OccurrenceTime Class="CodeUnitValue">
 						<Code><![CDATA[0]]></Code>
 						<Unit Class="TimeUnits"><![CDATA[SECOND]]></Unit>
@@ -1418,7 +1330,7 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 					</RecurrenceCode>
 			</DatasetsCreationProperties>
 			<ScaleRuler>
-				<Id>1737245133050</Id>
+				<Id>1737408492473</Id>
 				<Name><![CDATA[scale]]></Name>
 				<X>0</X><Y>-150</Y>
 				<PublicFlag>false</PublicFlag>
@@ -1433,15 +1345,15 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 				<Scale>10</Scale>
 				<InheritedFromParentAgentType>true</InheritedFromParentAgentType>
 			</ScaleRuler>
-			<CurrentLevel>1737245133054</CurrentLevel>
-			<ConnectionsId>1737245133048</ConnectionsId>
+			<CurrentLevel>1737408492477</CurrentLevel>
+			<ConnectionsId>1737408492471</ConnectionsId>
 			<Functions>
 				<Function AccessType="default" StaticFunction="false">
 					<ReturnModificator>VOID</ReturnModificator>
 					<ReturnType><![CDATA[double]]></ReturnType>
-					<Id>1737245324957</Id>
+					<Id>1737423659130</Id>
 					<Name><![CDATA[tryMove]]></Name>
-					<X>230</X><Y>-90</Y>
+					<X>50</X><Y>40</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -1453,17 +1365,57 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 					<Body><![CDATA[
 // convert 'dir' to the slipped direction with the appropriate chance
 CellDirection actualDir = randomTrue(main.slipChance, main.slipRNG) ? randomFrom(main.VALID_DIRECTIONS, main.slipRNG) : dir;
-
-if (getSpace().isNextCellInsideSpace(actualDir)) {
-	Agent a = getSpace().getAgentNextToMe(actualDir);
-	setSpace(a);
-}
+traceln(actualDir);
+future_pos=change_position(actualDir,main.agent.getX(),main.agent.getY());
+main.agent.getSpace() instanceof Hole 
+main.agent.getSpace() instanceof Goal
+main.agent.getSpace() instanceof singlewall
 ]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[int[]]]></ReturnType>
+					<Id>1737427602630</Id>
+					<Name><![CDATA[change_position]]></Name>
+					<X>50</X><Y>70</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Parameter>
+						<Name><![CDATA[dir]]></Name>
+						<Type><![CDATA[String]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[Curr_x]]></Name>
+						<Type><![CDATA[int]]></Type>
+					</Parameter>
+					<Parameter>
+						<Name><![CDATA[Curr_y]]></Name>
+						<Type><![CDATA[int]]></Type>
+					</Parameter>
+					<Body><![CDATA[if (dir == "EAST")
+return new int[]{Curr_x+1,Curr_y};
+else if (dir == "SOUTH")
+return new int[]{Curr_x,Curr_y+1};
+else if (dir == "WEST")
+return new int[]{Curr_x-1,Curr_y};
+else if (dir == "NORTH")
+return new int[]{Curr_x,Curr_y-1};
+else if (dir == "NORTHEAST")
+return new int[]{Curr_x+1,Curr_y-1};
+else if (dir == "NORTHWEST")
+return new int[]{Curr_x-1,Curr_y-1};
+else if (dir == "SOUTHEAST")
+return new int[]{Curr_x+1,Curr_y+1};
+else if(dir == "SOUTHWEST")
+return new int[]{Curr_x-1,Curr_y+1};
+return new int[]{Curr_x, Curr_y};]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
 				<AgentLink>
-					<Id>1737245133048</Id>
+					<Id>1737408492471</Id>
 					<Name><![CDATA[connections]]></Name>
 					<X>50</X><Y>-50</Y>
 					<Label><X>15</X><Y>0</Y></Label>
@@ -1485,7 +1437,7 @@ if (getSpace().isNextCellInsideSpace(actualDir)) {
 
 			<ContainerLinks>
 				<ContainerLink>
-					<Id>1737245204511</Id>
+					<Id>1737423651919</Id>
 					<Name><![CDATA[main]]></Name>
 					<X>50</X><Y>-100</Y>
 					<Label><X>10</X><Y>0</Y></Label>
@@ -1501,7 +1453,7 @@ if (getSpace().isNextCellInsideSpace(actualDir)) {
 
 			<Presentation>
 				<Level>
-					<Id>1737245133054</Id>
+					<Id>1737408492477</Id>
 					<Name><![CDATA[level]]></Name>
 					<X>0</X><Y>0</Y>
 					<Label><X>10</X><Y>0</Y></Label>
@@ -1514,7 +1466,7 @@ if (getSpace().isNextCellInsideSpace(actualDir)) {
 
 			<Presentation>
 				<RectangleWall>
-					<Id>1737245155529</Id>
+					<Id>1737408582569</Id>
 					<Name><![CDATA[wall]]></Name>
 					<X>0</X><Y>0</Y>
 					<Label><X>10</X><Y>0</Y></Label>
@@ -1527,7 +1479,7 @@ if (getSpace().isNextCellInsideSpace(actualDir)) {
 					<LineWidth>1</LineWidth>
 					<LineMaterial>null</LineMaterial>
 					<FillingType>HATCHED_AREA</FillingType>
-					<ZHeight>3</ZHeight>
+					<ZHeight>2</ZHeight>
 					<Rotation>0.0</Rotation>
 					<Width>1</Width>
 					<Height>1</Height>
@@ -1596,28 +1548,25 @@ import java.util.*;
 import org.uma.jmetal.problem.singleobjective.Sphere;]]></Import>
 			<CommandLineArguments><![CDATA[]]></CommandLineArguments>
 			<InitialSetupCode><![CDATA[Read_Maze_Matrix();	
-executeStatement("DELETE FROM walls");
 int rows=matrix.size();
 int num_walls=0;
 int num_holes=0;
 int num_goals=0;
+
 
 for (int i=0; i<rows;i++){
 int column=matrix.get(i).length;
 for (int j=0;j<column;j++){
 if (matrix.get(i)[j]==0)
 {
-executeStatement("INSERT INTO walls (id,r,c) VALUES ("+num_walls+","+i+","+ j+")");
 num_walls++;
 }
 else if (matrix.get(i)[j]==2)
 {
-executeStatement("INSERT INTO hole (id,r,c) VALUES ("+num_hole+","+i+","+ j+")");
 num_holes++;
 }
 else if (matrix.get(i)[j]==3)
 {
-executeStatement("INSERT INTO goal (id,r,c) VALUES ("+num_goal+","+i+","+ j+")");
 num_goals++;
 }
 }}
@@ -1826,13 +1775,13 @@ for (Goal g: root.singlegoal){
 cells[g.getR()][g.getC()] = 1;
 }
 
-pos = new int[]{root.explorers.get(0).getSpace().getR(), root.explorers.get(0).getSpace().getC()};]]></ObservationCode>
-			<StopCondition><![CDATA[root.explorers.get(0).getSpace() instanceof Hole || root.explorers.get(0).getSpace() instanceof Goal]]></StopCondition>
+pos = new int[]{root.agent.getSpace().getR(), root.agent.getSpace().getC()};]]></ObservationCode>
+			<StopCondition><![CDATA[root.agent.getSpace() instanceof Hole || root.agent.getSpace() instanceof Goal]]></StopCondition>
 			<ActionField>
 				<Name><![CDATA[dir]]></Name>
 				<Type><![CDATA[String]]></Type>
 			</ActionField>
-			<ActionCode><![CDATA[root.explorers.get(0).tryMove(CellDirection.valueOf(dir));]]></ActionCode>
+			<ActionCode><![CDATA[root.agent.tryMove(CellDirection.valueOf(dir));]]></ActionCode>
 			<ConfigurationField>
 				<Name><![CDATA[slipchance]]></Name>
 				<Type><![CDATA[double]]></Type>
