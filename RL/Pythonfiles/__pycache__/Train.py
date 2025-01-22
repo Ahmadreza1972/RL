@@ -13,7 +13,8 @@ from copy import deepcopy
 from alpyne.sim import AnyLogicSim
 from interactive import print_board
 
-
+max_steps=100
+step=0
 class PathfinderTrainer:
     # Do not change the order of these! They're based on the order of the collection in the sim
     DIRECTIONS = ["EAST", "SOUTH", "WEST", "NORTH", "NORTHEAST", "NORTHWEST", "SOUTHEAST", "SOUTHWEST"]
@@ -56,7 +57,7 @@ class PathfinderTrainer:
 
         reward_totals = []
         for episode in range(n_eps):
-            do_log = log_every > 0 and episode % log_every == 0
+            do_log = True #log_every > 0 and episode % log_every == 0
             if do_log:
                 print(f"\nEPISODE {episode} / {n_eps}")
 
@@ -66,8 +67,8 @@ class PathfinderTrainer:
                 this_config.update(config_overrides)
             status = self.sim.reset(**this_config)
 
-            if episode == 0 and print_initial_board:
-                print_board(status)
+            #if episode == 0 and print_initial_board:
+                #print_board(status)
 
             reward_total = 0
 
@@ -81,10 +82,6 @@ class PathfinderTrainer:
                 if status.stop:
                     r, c = status.observation['pos']
                     final_reward = status.observation['cells'][r][c]
-
-                    if do_log:
-                        print(f"\t\t= {final_reward}")
-
                     break
 
                 row, col = status.observation['pos']
@@ -108,8 +105,8 @@ class PathfinderTrainer:
 
                 status = new_status
             reward_totals.append(reward_total)
-            if do_log:
-                print(f"Score counts: {dict(Counter(reward_totals))} | Epsilon: {self.get_epsilon(episode):.3f}\n\n")
+           # if do_log:
+                #print(f"Score counts: {dict(Counter(reward_totals))} | Epsilon: {self.get_epsilon(episode):.3f}\n\n")
 
         return reward_totals
 
@@ -133,7 +130,7 @@ if __name__ == "__main__":
     num_walls=0
     num_holes=0
     num_goals=0
-    df=pd.read_csv("RL\matrix.csv")
+    df=pd.read_csv("RL\matrix.csv",header=None)
     matrixs = df.to_numpy()
     for i in range(0,matrixs.shape[0]):
         for j in range(0,matrixs.shape[1]):
@@ -144,21 +141,21 @@ if __name__ == "__main__":
             elif matrixs[i][j]==3:
                 num_goals+=1
     new_matrixs= [row.tolist() for row in matrixs]
-    config = dict(slipchance=0.0,slipChanceSeed=0,num_goal=num_goals,num_wall=num_walls,num_hole=num_holes,matrix=new_matrixs)
+    slipchance_tr=0.2
+    config = dict(slipchance=slipchance_tr,num_goal=num_goals,num_wall=num_walls,num_hole=num_holes,matrix=new_matrixs,max_step=max_steps,curr_step=step)
     trainer = PathfinderTrainer(sim, config,
                                 lr=0.7,
                                 gamma=0.6,
                                 decay_rate=0.005
                                 )
 
-    rewards_per_eps = trainer.train(100, log_every=50, verbose_log=False, print_initial_board=True)
+    rewards_per_eps = trainer.train(5, log_every=50, verbose_log=False, print_initial_board=True)
 
-    with open(r"ModelSource/qTable.json", "w") as f:  # point to/move this file in the model to have it be loaded
+    with open(r"RL/ModelSource/qTable.json", "w") as f:  # point to/move this file in the model to have it be loaded
         json.dump(trainer.q_table.tolist(), f)
 
     print("Count of reward occurrence:", Counter(rewards_per_eps))
     print(f"Seconds to train: {time.time() - start}")
-    print("Test reward results (no slipping):", Counter(trainer.test(10, config_overrides=dict(slipchance=0))))
-    print("Test reward results (same config):", Counter(trainer.test(10)))
-    print("Test reward results (2x slipping):",
-          Counter(trainer.test(10, config_overrides=dict(slipChance=config['slipchance'] * 2))))
+    #print("Test reward results (no slipping):", Counter(trainer.test(10, config_overrides=dict(slipchance=0))))
+    #print("Test reward results (same config):", Counter(trainer.test(10)))
+    #print("Test reward results (2x slipping):",Counter(trainer.test(10, config_overrides=dict(slipChance=config['slipchance'] * 2))))

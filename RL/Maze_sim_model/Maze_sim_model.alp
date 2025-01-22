@@ -167,6 +167,28 @@ agent.wall.setColor(red);
 			</ScaleRuler>
 			<CurrentLevel>1737062037419</CurrentLevel>
 			<ConnectionsId>1737062037413</ConnectionsId>
+			<Outputs>
+				<Output>
+					<Id>1737480284893</Id>
+					<Name><![CDATA[score]]></Name>
+					<X>-390</X><Y>340</Y>
+					<Label><X>15</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>false</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Type><![CDATA[double]]></Type>
+					<UnitType><![CDATA[NONE]]></UnitType>
+					<Value Class="CodeValue">
+						<Code><![CDATA[getScore()]]></Code>
+					</Value>
+					<ComputationMoment>ON_SIMULATION_END</ComputationMoment>
+					<ComputationTimeCode Class="CodeUnitValue">
+						<Code><![CDATA[]]></Code>
+						<Unit Class="TimeUnits"><![CDATA[SECOND]]></Unit>
+					</ComputationTimeCode>
+					<ComputationDate>1702713600000</ComputationDate>
+				</Output>
+			</Outputs>
 			<Variables>
 				<Variable Class="PlainVariable">
 					<Id>1737466958231</Id>
@@ -195,6 +217,9 @@ agent.wall.setColor(red);
 						<Type><![CDATA[int]]></Type>
 						<UnitType><![CDATA[NONE]]></UnitType>
 						<SdArray>false</SdArray>
+						<DefaultValue Class="CodeValue">
+							<Code><![CDATA[1938]]></Code>
+						</DefaultValue>
 						<ParameterEditor>
 							<Id>1737220367844</Id>
 							<EditorContolType>TEXT_BOX</EditorContolType>
@@ -216,6 +241,9 @@ agent.wall.setColor(red);
 						<Type><![CDATA[int]]></Type>
 						<UnitType><![CDATA[NONE]]></UnitType>
 						<SdArray>false</SdArray>
+						<DefaultValue Class="CodeValue">
+							<Code><![CDATA[87]]></Code>
+						</DefaultValue>
 						<ParameterEditor>
 							<Id>1737240254275</Id>
 							<EditorContolType>TEXT_BOX</EditorContolType>
@@ -237,6 +265,9 @@ agent.wall.setColor(red);
 						<Type><![CDATA[int]]></Type>
 						<UnitType><![CDATA[NONE]]></UnitType>
 						<SdArray>false</SdArray>
+						<DefaultValue Class="CodeValue">
+							<Code><![CDATA[1]]></Code>
+						</DefaultValue>
 						<ParameterEditor>
 							<Id>1737242297772</Id>
 							<EditorContolType>TEXT_BOX</EditorContolType>
@@ -332,6 +363,9 @@ agent.wall.setColor(red);
 						<Type><![CDATA[double]]></Type>
 						<UnitType><![CDATA[NONE]]></UnitType>
 						<SdArray>false</SdArray>
+						<DefaultValue Class="CodeValue">
+							<Code><![CDATA[100]]></Code>
+						</DefaultValue>
 						<ParameterEditor>
 							<Id>1737466596322</Id>
 							<EditorContolType>TEXT_BOX</EditorContolType>
@@ -391,7 +425,7 @@ agent.wall.setColor(red);
 						<Condition><![CDATA[false]]></Condition>
 					</Properties>
 					<Action><![CDATA[if (curr_step<Max_steps)
-agent.tryMove(randomFrom(VALID_DIRECTIONS, new Random()).toString());
+RLExperiment.takeAction(this);
 else if (curr_step>=Max_steps)
 	finishSimulation();
 curr_step++;]]></Action>
@@ -429,6 +463,24 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
         e.printStackTrace();
     }
 ]]></Body>
+				</Function>
+				<Function AccessType="default" StaticFunction="false">
+					<ReturnModificator>RETURNS_VALUE</ReturnModificator>
+					<ReturnType><![CDATA[int]]></ReturnType>
+					<Id>1737480284885</Id>
+					<Name><![CDATA[getScore]]></Name>
+					<X>-270</X><Y>340</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>false</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Body><![CDATA[int x = (int) agent.getX();
+int y = (int) agent.getY();
+if (matrix.get(x)[y]==2)
+return -1;
+if (matrix.get(x)[y]==3)
+return 1;
+return 0;]]></Body>
 				</Function>
 			</Functions>
 			<AgentLinks>
@@ -1402,9 +1454,7 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 						<Type><![CDATA[String]]></Type>
 					</Parameter>
 					<Body><![CDATA[
-// convert 'dir' to the slipped direction with the appropriate chance
 String actualDir = randomTrue(main.slipChance, main.slipRNG) ? randomFrom(main.VALID_DIRECTIONS, main.slipRNG).toString() : dir;
-traceln(actualDir);
 int [] future_pos=change_position(actualDir,(int) main.agent.getX(),(int) main.agent.getY());
 if (main.matrix.get(future_pos[0])[future_pos[1]]!=0)
 main.agent.setXY(future_pos[0], future_pos[1]);
@@ -1572,9 +1622,63 @@ return new int[]{Curr_x, Curr_y};]]></Body>
 			<EnableDeveloperPanel>false</EnableDeveloperPanel>
 			<ShowDeveloperPanelOnStart>false</ShowDeveloperPanelOnStart>
 		</AnimationProperties>
-		<Inputs>		
+		<Inputs>
+    		<RunConfigurationInput>
+				<Id>1737480221459</Id>
+				<Name><![CDATA[Num wall]]></Name>
+				<InputReference>
+					<PackageName><![CDATA[maze_lr]]></PackageName>
+					<ClassName><![CDATA[Main]]></ClassName>
+					<ItemName><![CDATA[num_wall]]></ItemName>
+				</InputReference>
+    		</RunConfigurationInput>
+    		<RunConfigurationInput>
+				<Id>1737480223017</Id>
+				<Name><![CDATA[Num hole]]></Name>
+				<InputReference>
+					<PackageName><![CDATA[maze_lr]]></PackageName>
+					<ClassName><![CDATA[Main]]></ClassName>
+					<ItemName><![CDATA[num_hole]]></ItemName>
+				</InputReference>
+    		</RunConfigurationInput>
+    		<RunConfigurationInput>
+				<Id>1737480226207</Id>
+				<Name><![CDATA[Num goal]]></Name>
+				<InputReference>
+					<PackageName><![CDATA[maze_lr]]></PackageName>
+					<ClassName><![CDATA[Main]]></ClassName>
+					<ItemName><![CDATA[num_goal]]></ItemName>
+				</InputReference>
+    		</RunConfigurationInput>
+    		<RunConfigurationInput>
+				<Id>1737480228800</Id>
+				<Name><![CDATA[Random action chance]]></Name>
+				<InputReference>
+					<PackageName><![CDATA[maze_lr]]></PackageName>
+					<ClassName><![CDATA[Main]]></ClassName>
+					<ItemName><![CDATA[slipChance]]></ItemName>
+				</InputReference>
+    		</RunConfigurationInput>
+    		<RunConfigurationInput>
+				<Id>1737480230424</Id>
+				<Name><![CDATA[Max steps]]></Name>
+				<InputReference>
+					<PackageName><![CDATA[maze_lr]]></PackageName>
+					<ClassName><![CDATA[Main]]></ClassName>
+					<ItemName><![CDATA[Max_steps]]></ItemName>
+				</InputReference>
+    		</RunConfigurationInput>		
 		</Inputs>
 		<Outputs>
+    		<RunConfigurationOutput>
+				<Id>1737480915312</Id>
+				<Name><![CDATA[Score]]></Name>
+				<OutputReference>
+					<PackageName><![CDATA[maze_lr]]></PackageName>
+					<ClassName><![CDATA[Main]]></ClassName>
+					<ItemName><![CDATA[score]]></ItemName>
+				</OutputReference>
+    		</RunConfigurationOutput>
 		</Outputs>
 	</RunConfiguration>
 	<Experiments>	
@@ -1829,16 +1933,19 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 			<ObservationCode><![CDATA[// empty = 0 (default)
 // hole = -1
 // goal = 1
-cells = new int[root.spaceRows()-20][root.spaceColumns()-20];
-for (Hole h : root.singleholes) {
-	cells[h.getR()][h.getC()] = -1;
+cells = new int[root.matrix.size()][root.matrix.get(0).length];
+int rows=root.matrix.size();
+for (int i=0; i<rows;i++){
+int column=root.matrix.get(i).length;
+for (int j=0;j<column;j++){
+if (root.matrix.get(i)[j]==2)
+cells[i][j]=-1;
+if (root.matrix.get(i)[j]==3)
+cells[i][j]=1;
 }
-for (Goal g: root.singlegoal){
-cells[g.getR()][g.getC()] = 1;
 }
-
-pos = new int[]{root.agent.getSpace().getR(), root.agent.getSpace().getC()};]]></ObservationCode>
-			<StopCondition><![CDATA[root.agent.getSpace() instanceof Hole || root.agent.getSpace() instanceof Goal]]></StopCondition>
+pos = new int[]{(int) root.agent.getX(),(int) root.agent.getY()};]]></ObservationCode>
+			<StopCondition><![CDATA[ root.matrix.get((int) root.agent.getX())[(int) root.agent.getY()]==2  || root.matrix.get((int) root.agent.getX())[(int) root.agent.getY()]==3]]></StopCondition>
 			<ActionField>
 				<Name><![CDATA[dir]]></Name>
 				<Type><![CDATA[String]]></Type>
@@ -1868,12 +1975,21 @@ pos = new int[]{root.agent.getSpace().getR(), root.agent.getSpace().getC()};]]><
 				<Name><![CDATA[matrix]]></Name>
 				<Type><![CDATA[List<int[]>]]></Type>
 			</ConfigurationField>
+			<ConfigurationField>
+				<Name><![CDATA[curr_step]]></Name>
+				<Type><![CDATA[int]]></Type>
+			</ConfigurationField>
+			<ConfigurationField>
+				<Name><![CDATA[max_step]]></Name>
+				<Type><![CDATA[int]]></Type>
+			</ConfigurationField>
 			<ConfigurationCode><![CDATA[root.num_wall=num_wall;
 root.num_hole=num_hole;
 root.num_goal=num_goal;
 root.slipChance = slipchance;
 root.slipChanceSeed = slipChanceSeed;
-root.matrix=matrix;]]></ConfigurationCode>
+root.matrix=matrix;
+root.curr_step=curr_step;]]></ConfigurationCode>
 		</ReinforcementLearningExperiment>
 	</Experiments>
     <RequiredLibraryReference>
