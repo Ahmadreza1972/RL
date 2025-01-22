@@ -20,7 +20,18 @@
 		<ActiveObjectClass>
 			<Id>1737062037412</Id>
 			<Name><![CDATA[Main]]></Name>
-			<AdditionalClassCode><![CDATA[public Random slipRNG;]]></AdditionalClassCode>
+			<AdditionalClassCode><![CDATA[public Random slipRNG;
+public static int argmax(double[] array) {
+        double maxVal = array[0];
+        int maxIndex = 0;
+        for (int i = 1; i < array.length; i++) {
+            if (array[i] > maxVal) {
+                maxVal = array[i];
+                maxIndex = i;
+            }
+        }
+        return maxIndex;
+    }]]></AdditionalClassCode>
 			<Import><![CDATA[import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.*;
@@ -37,6 +48,7 @@ import maze_lr.RLExperiment.Configuration;
 import maze_lr.RLExperiment.Observation;]]></Import>
 			<StartupCode><![CDATA[slipRNG = slipChanceSeed == null ? new Random() : new Random(slipChanceSeed);
 //Read_Maze_Matrix();
+int [] point=new int[]{0,0};
 int rows=matrix.size();
 int num_walls=0;
 int holes=0;
@@ -68,13 +80,28 @@ new_goal.setXY(i, j);
 new_goal.wall.setColor(green);
 }
 if (matrix.get(i)[j]==4){
-agent.setXY(i, j);
+point[0]=i;
+point[1]=j;
+}
+
+}
+}
+if (mode == 0)
+{
+agent.setXY(agent_loc[0], agent_loc[1]);
 agent.wall.setColor(red);
 }
-
+if (mode == 1) {
+agent.setXY(point[0], point[1]);
+agent.wall.setColor(red);
+	try {
+		qTable = new ObjectMapper().readValue(new File(qtableFile), double[][].class);
+	} catch (Exception e) {
+		e.printStackTrace();
+		error("Failed to load qtable");
+		return;
+	}
 }
-}
-
 ]]></StartupCode>
 			<Generic>false</Generic>
 			<GenericParameter>
@@ -202,6 +229,33 @@ agent.wall.setColor(red);
 						<Type><![CDATA[int]]></Type>        
 						<InitialValue Class="CodeValue">
 							<Code><![CDATA[0]]></Code>
+						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1737555320309</Id>
+					<Name><![CDATA[qTable]]></Name>
+					<X>-220</X><Y>230</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>false</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double[][]]]></Type>        
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1737579747154</Id>
+					<Name><![CDATA[agent_loc]]></Name>
+					<X>-220</X><Y>170</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[int []]]></Type>        
+						<InitialValue Class="CodeValue">
+							<Code><![CDATA[new int[]{}]]></Code>
 						</InitialValue>
 					</Properties>
 				</Variable>
@@ -364,11 +418,82 @@ agent.wall.setColor(red);
 						<UnitType><![CDATA[NONE]]></UnitType>
 						<SdArray>false</SdArray>
 						<DefaultValue Class="CodeValue">
-							<Code><![CDATA[100]]></Code>
+							<Code><![CDATA[1000]]></Code>
 						</DefaultValue>
 						<ParameterEditor>
 							<Id>1737466596322</Id>
 							<EditorContolType>TEXT_BOX</EditorContolType>
+							<MinSliderValue><![CDATA[0]]></MinSliderValue>
+							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
+							<DelimeterType>NO_DELIMETER</DelimeterType>
+						</ParameterEditor>
+					</Properties>                 
+				</Variable>
+				<Variable Class="Parameter">
+					<Id>1737554645800</Id>
+					<Name><![CDATA[mode]]></Name>
+					<X>-510</X><Y>20</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>false</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
+						<Type><![CDATA[int]]></Type>
+						<UnitType><![CDATA[NONE]]></UnitType>
+						<SdArray>false</SdArray>
+						<DefaultValue Class="CodeValue">
+							<Code><![CDATA[0]]></Code>
+						</DefaultValue>
+						<ParameterEditor>
+							<Id>1737554645798</Id>
+							<Label><![CDATA[Mode]]></Label>
+							<EditorContolType>RADIO_BUTTONS</EditorContolType>
+							<PredefParamValue>
+								<Id>1737554645794</Id>
+								<Name><![CDATA[Train]]></Name>
+								<Value Class="CodeValue">
+									<Code><![CDATA[0]]></Code>
+								</Value>
+							</PredefParamValue>
+							<PredefParamValue>
+								<Id>1737554645797</Id>
+								<Name><![CDATA[QTable]]></Name>
+								<Value Class="CodeValue">
+									<Code><![CDATA[1]]></Code>
+								</Value>
+							</PredefParamValue>
+							<MinSliderValue><![CDATA[0]]></MinSliderValue>
+							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
+							<DelimeterType>NO_DELIMETER</DelimeterType>
+						</ParameterEditor>
+					</Properties>                 
+				</Variable>
+				<Variable Class="Parameter">
+					<Id>1737554645821</Id>
+					<Name><![CDATA[qtableFile]]></Name>
+					<X>-510</X><Y>50</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>false</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
+						<Type><![CDATA[String]]></Type>
+						<UnitType><![CDATA[NONE]]></UnitType>
+						<SdArray>false</SdArray>
+						<DefaultValue Class="CodeValue">
+							<Code><![CDATA["qTable.json"]]></Code>
+						</DefaultValue>
+						<ParameterEditor>
+							<Id>1737554645819</Id>
+							<EditorContolType>TEXT_BOX</EditorContolType>
+							<HideCondition>
+								<Id>1737554645818</Id>
+								<ParameterId>1737554645800</ParameterId>
+								<Operation>NOT_EQUALS</Operation>
+								<Value Class="CodeValue">
+									<Code><![CDATA[1]]></Code>
+								</Value>
+							</HideCondition>
 							<MinSliderValue><![CDATA[0]]></MinSliderValue>
 							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
 							<DelimeterType>NO_DELIMETER</DelimeterType>
@@ -424,11 +549,23 @@ agent.wall.setColor(red);
 						</RecurrenceCode>
 						<Condition><![CDATA[false]]></Condition>
 					</Properties>
-					<Action><![CDATA[if (curr_step<Max_steps)
+					<Action><![CDATA[switch (mode){
+case 0:
+//if (curr_step<Max_steps)
 RLExperiment.takeAction(this);
-else if (curr_step>=Max_steps)
+//else if (curr_step>=Max_steps)
+//	finishSimulation();
+curr_step++;
+break;
+case 1:
+int idx = argmax(qTable[((int) agent.getX())*matrix.size()+((int) agent.getY())]); // argmax defined in addtl class code
+agent.tryMove(VALID_DIRECTIONS.get(idx).toString());
+if (RLExperiment.checkEpisodeStopCondition(this)) {
 	finishSimulation();
-curr_step++;]]></Action>
+}
+
+break;
+}]]></Action>
 				</Event>
 			</Events>
 			<Functions>
@@ -469,7 +606,7 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 					<ReturnType><![CDATA[int]]></ReturnType>
 					<Id>1737480284885</Id>
 					<Name><![CDATA[getScore]]></Name>
-					<X>-270</X><Y>340</Y>
+					<X>-220</X><Y>320</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>false</PresentationFlag>
@@ -1454,13 +1591,12 @@ return 0;]]></Body>
 						<Type><![CDATA[String]]></Type>
 					</Parameter>
 					<Body><![CDATA[
-String actualDir = randomTrue(main.slipChance, main.slipRNG) ? randomFrom(main.VALID_DIRECTIONS, main.slipRNG).toString() : dir;
-int [] future_pos=change_position(actualDir,(int) main.agent.getX(),(int) main.agent.getY());
+int [] future_pos=change_position(dir,(int) main.agent.getX(),(int) main.agent.getY());
+
+if (future_pos[0]<60 && future_pos[0]>=0 && future_pos[1]<60 && future_pos[1]>=0)
 if (main.matrix.get(future_pos[0])[future_pos[1]]!=0)
 main.agent.setXY(future_pos[0], future_pos[1]);
-/*main.agent.getSpace() instanceof Hole 
-main.agent.getSpace() instanceof Goal
-main.agent.getSpace() instanceof singlewall*/
+
 ]]></Body>
 				</Function>
 				<Function AccessType="default" StaticFunction="false">
@@ -1788,7 +1924,7 @@ num_goal=num_goals;]]></InitialSetupCode>
 					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
 						<Type><![CDATA[int]]></Type>        
 						<InitialValue Class="CodeValue">
-							<Code><![CDATA[100]]></Code>
+							<Code><![CDATA[200]]></Code>
 						</InitialValue>
 					</Properties>
 				</Variable>
@@ -1889,6 +2025,15 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 						<Code><![CDATA[max_step]]></Code>
 					</ParameterValue>
 				</Parameter>
+				<Parameter>
+					<ParameterName><![CDATA[mode]]></ParameterName>
+					<ParameterValue Class="CodeValue">
+						<Code><![CDATA[1]]></Code>
+					</ParameterValue>
+				</Parameter>
+				<Parameter>
+					<ParameterName><![CDATA[qtableFile]]></ParameterName>
+				</Parameter>
 			</Parameters>			
 			<PresentationProperties>
 				<EnableZoomAndPanning>true</EnableZoomAndPanning>
@@ -1938,14 +2083,19 @@ int rows=root.matrix.size();
 for (int i=0; i<rows;i++){
 int column=root.matrix.get(i).length;
 for (int j=0;j<column;j++){
+if (root.matrix.get(i)[j]==0)
+cells[i][j]=-5;
+if (root.matrix.get(i)[j]==1)
+cells[i][j]=5;
 if (root.matrix.get(i)[j]==2)
-cells[i][j]=-1;
+cells[i][j]=-100;
 if (root.matrix.get(i)[j]==3)
-cells[i][j]=1;
+cells[i][j]=100;
 }
 }
-pos = new int[]{(int) root.agent.getX(),(int) root.agent.getY()};]]></ObservationCode>
-			<StopCondition><![CDATA[ root.matrix.get((int) root.agent.getX())[(int) root.agent.getY()]==2  || root.matrix.get((int) root.agent.getX())[(int) root.agent.getY()]==3]]></StopCondition>
+pos = new int[]{(int) root.agent.getX(),(int) root.agent.getY()};
+// root.matrix.get((int) root.agent.getX())[(int) root.agent.getY()]==2  || root.matrix.get((int) root.agent.getX())[(int) root.agent.getY()]==3]]></ObservationCode>
+			<StopCondition><![CDATA[root.curr_step>=root.Max_steps]]></StopCondition>
 			<ActionField>
 				<Name><![CDATA[dir]]></Name>
 				<Type><![CDATA[String]]></Type>
@@ -1983,13 +2133,19 @@ pos = new int[]{(int) root.agent.getX(),(int) root.agent.getY()};]]></Observatio
 				<Name><![CDATA[max_step]]></Name>
 				<Type><![CDATA[int]]></Type>
 			</ConfigurationField>
-			<ConfigurationCode><![CDATA[root.num_wall=num_wall;
+			<ConfigurationField>
+				<Name><![CDATA[agent_loc]]></Name>
+				<Type><![CDATA[int []]]></Type>
+			</ConfigurationField>
+			<ConfigurationCode><![CDATA[root.mode = 0;
+root.num_wall=num_wall;
 root.num_hole=num_hole;
 root.num_goal=num_goal;
 root.slipChance = slipchance;
 root.slipChanceSeed = slipChanceSeed;
 root.matrix=matrix;
-root.curr_step=curr_step;]]></ConfigurationCode>
+root.curr_step=curr_step;
+root.agent_loc=agent_loc;]]></ConfigurationCode>
 		</ReinforcementLearningExperiment>
 	</Experiments>
     <RequiredLibraryReference>
