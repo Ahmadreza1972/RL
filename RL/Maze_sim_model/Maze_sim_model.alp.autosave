@@ -20,7 +20,18 @@
 		<ActiveObjectClass>
 			<Id>1737062037412</Id>
 			<Name><![CDATA[Main]]></Name>
-			<AdditionalClassCode><![CDATA[public Random slipRNG;]]></AdditionalClassCode>
+			<AdditionalClassCode><![CDATA[public Random slipRNG;
+public static int argmax(double[] array) {
+        double maxVal = array[0];
+        int maxIndex = 0;
+        for (int i = 1; i < array.length; i++) {
+            if (array[i] > maxVal) {
+                maxVal = array[i];
+                maxIndex = i;
+            }
+        }
+        return maxIndex;
+    }]]></AdditionalClassCode>
 			<Import><![CDATA[import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.*;
@@ -74,7 +85,15 @@ agent.wall.setColor(red);
 
 }
 }
-
+if (mode == 1) {
+	try {
+		qTable = new ObjectMapper().readValue(new File(qtableFile), double[][].class);
+	} catch (Exception e) {
+		e.printStackTrace();
+		error("Failed to load qtable");
+		return;
+	}
+}
 ]]></StartupCode>
 			<Generic>false</Generic>
 			<GenericParameter>
@@ -203,6 +222,18 @@ agent.wall.setColor(red);
 						<InitialValue Class="CodeValue">
 							<Code><![CDATA[0]]></Code>
 						</InitialValue>
+					</Properties>
+				</Variable>
+				<Variable Class="PlainVariable">
+					<Id>1737555320309</Id>
+					<Name><![CDATA[qTable]]></Name>
+					<X>-220</X><Y>230</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>false</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
+						<Type><![CDATA[double[][]]]></Type>        
 					</Properties>
 				</Variable>
 				<Variable Class="Parameter">
@@ -495,11 +526,22 @@ agent.wall.setColor(red);
 						</RecurrenceCode>
 						<Condition><![CDATA[false]]></Condition>
 					</Properties>
-					<Action><![CDATA[if (curr_step<Max_steps)
+					<Action><![CDATA[switch (mode){
+case 0:
+if (curr_step<Max_steps)
 RLExperiment.takeAction(this);
 else if (curr_step>=Max_steps)
 	finishSimulation();
-curr_step++;]]></Action>
+curr_step++;
+break;
+case 1:
+int idx = argmax(qTable[((int) agent.getX())*matrix.size()+((int) agent.getY())]); // argmax defined in addtl class code
+agent.tryMove(VALID_DIRECTIONS.get(idx).toString());
+if (RLExperiment.checkEpisodeStopCondition(this)) {
+	finishSimulation();
+}
+break;
+}]]></Action>
 				</Event>
 			</Events>
 			<Functions>
@@ -1962,6 +2004,9 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 				</Parameter>
 				<Parameter>
 					<ParameterName><![CDATA[mode]]></ParameterName>
+					<ParameterValue Class="CodeValue">
+						<Code><![CDATA[1]]></Code>
+					</ParameterValue>
 				</Parameter>
 				<Parameter>
 					<ParameterName><![CDATA[qtableFile]]></ParameterName>
