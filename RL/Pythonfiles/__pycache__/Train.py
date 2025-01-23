@@ -12,9 +12,10 @@ from collections import Counter
 from copy import deepcopy
 from alpyne.sim import AnyLogicSim
 from interactive import print_board
+import math
 
 max_steps=500
-n_episodes=100
+n_episodes=400
 step=0
 class PathfinderTrainer:
     # Do not change the order of these! They're based on the order of the collection in the sim
@@ -22,9 +23,9 @@ class PathfinderTrainer:
 
     def __init__(self, sim,
                  config_kwargs,
-                 lr=0.9,
+                 lr=0.7,
                  max_steps=max_steps,
-                 gamma=0.9,
+                 gamma=0.6,
                  max_epsilon=1.0, min_epsilon=0.05,
                  decay_rate=0.01):
         # model related vars
@@ -38,7 +39,11 @@ class PathfinderTrainer:
         self.max_epsilon = max_epsilon
         self.min_epsilon = min_epsilon
         self.decay_rate = decay_rate
-        self.q_table = np.zeros((60*60, 8))
+        file_path = "RL\Maze_sim_model\qTable_base2.json"
+        # Open the file and load its contents
+        with open(file_path, "r") as file:
+            data = json.load(file)
+        self.q_table = np.array(data)
 
     def get_epsilon(self, episode: int):
         return self.min_epsilon + (self.max_epsilon - self.min_epsilon) * np.exp(-self.decay_rate * episode)
@@ -57,18 +62,50 @@ class PathfinderTrainer:
         verbose_log = kwargs.get('verbose_log', False)
         visit_counter = np.zeros((60, 60))
         reward_totals = []
-        for episode in range(n_eps):
+        secontlayer=True
+        submatrices = []
+        p=int(60/math.sqrt(n_eps)) 
+        # Loop through the matrix to extract submatrices
+        for i in range(0, 60, p):  # Loop through rows
+            for j in range(0, 60, p):  # Loop through columns
+                matrix = np.array(self.config_kwargs["matrix"])
+                submatrix = matrix[i:i+p,j:j+p]  # Extract submatrix of size p x q
+                submatrices.append((submatrix, i, j))
+        ini_pint=[]
+        for sub in  submatrices:         
+            sub_el, row_offset, col_offset = sub
+            positions = [(i, j) for i, row in enumerate(sub_el) for j, value in enumerate(row) if value == 1]
             
+            if positions:
+                agent_loc_ini=random.choice(positions)
+            # Choose a random element from the submatrix
+                random_row=agent_loc_ini[0]
+                random_col=agent_loc_ini[1]
+                # Convert to global coordinates in the original matrix
+                global_row = row_offset + random_row
+                global_col = col_offset + random_col
+                agent_loc_ini=[global_row,global_col]
+                if matrix[global_row][global_col]!=1:
+                    print("wrong")
+                ini_pint.append(agent_loc_ini)
+
+        
+        for episode in range(n_eps):
+            History=[]
             do_log = False #log_every > 0 and episode % log_every == 0
             if do_log:
                 print(f"\nEPISODE {episode} / {n_eps}")
-
-            #reset the environment, using default engine engine_settings
             this_config = deepcopy(self.config_kwargs)
-
-            positions = [(i, j) for i, row in enumerate(this_config["matrix"]) for j, value in enumerate(row) if value == 1]
-            agent_loc_ini=random.choice(positions)
-            this_config.update({"agent_loc":agent_loc_ini})
+            
+            if secontlayer==False:
+                if episode>len(ini_pint)-1:
+                    point=random.choice(ini_pint)
+                else:
+                    point=ini_pint[episode]
+            else:
+                point=[3,1]
+                
+            this_config.update({"agent_loc":point})
             if config_overrides:
                 this_config.update(config_overrides)
             status = self.sim.reset(**this_config)
@@ -97,18 +134,38 @@ class PathfinderTrainer:
                                          episode if in_train else -1)  # use only greedy policy (-1 "episode" in testing)
                 #if status.state != 'PAUSED':  # Example check for a specific state
                 #    print(f"Current engine state: {status.state}")
-
+                History.append(((row, col),PathfinderTrainer.DIRECTIONS[action]))
                 new_status = self.sim.take_action(dir=PathfinderTrainer.DIRECTIONS[action])
                 new_row, new_col = new_status.observation['pos']
                 new_state = new_row * 60 + new_col  # 8x8 board
                 visit_counter[new_row][new_col]+=1
                 reward = status.observation['cells'][new_row][new_col]
-                if ((reward==1000) | (reward==-100)):
+                
+                if (reward==-100):
+                    seen = set()
+                    History = [entry for entry in History if entry not in seen and not seen.add(entry)]
+                   
+                    for item in History[round(9*len(History)/10):]:
+                        if in_train:
+                            histate=item[0][0]*60+item[0][1]
+                            histact=PathfinderTrainer.DIRECTIONS.index(item[1])
+                            self.q_table[histate][histact] = self.q_table[histate][histact] + self.lr * (
+                        10*reward + self.gamma * np.max(self.q_table[histate]) - self.q_table[histate][histact])
                     stop_eps=True
-                reward_revisit=0#(-2*visit_counter[new_row][new_col])
+                if (reward==1000):
+                    seen = set()
+                    History = [entry for entry in History if entry not in seen and not seen.add(entry)]  
+                    for item in History:
+                        if in_train:
+                            histate=item[0][0]*60+item[0][1]
+                            histact=PathfinderTrainer.DIRECTIONS.index(item[1])
+                            self.q_table[histate][histact] = self.q_table[histate][histact] + self.lr * (
+                        reward + self.gamma * np.max(self.q_table[histate]) - self.q_table[histate][histact])
+                    stop_eps=True                      
+                reward_revisit=(-20*visit_counter[new_row][new_col])
                 reward_wall_dirict=0
                 if ((row==new_row) & (new_col==col)):
-                    reward_wall_dirict= -10
+                    reward_wall_dirict= -1000
                 reward+=  (reward_wall_dirict+reward_revisit)  
                 reward_total += reward
 
@@ -123,8 +180,17 @@ class PathfinderTrainer:
                 if (stop_eps):
                     print(f"ep: {episode}  step{step}")
                     break
-                if step==n_eps-1:
+                if step==max_steps-1:
                     print(f"ep: {episode}  step{step}")
+                    seen = set()
+                    History = [entry for entry in History if entry not in seen and not seen.add(entry)]  
+                    for item in History:
+                        if in_train:
+                            histate=item[0][0]*60+item[0][1]
+                            histact=PathfinderTrainer.DIRECTIONS.index(item[1])
+                            self.q_table[histate][histact] = self.q_table[histate][histact] + self.lr * (
+                        -50 + self.gamma * np.max(self.q_table[histate]) - self.q_table[histate][histact])                    
+
             reward_totals.append(reward_total)
             if do_log:
                 print(f"Score counts: {dict(Counter(reward_totals))} | Epsilon: {self.get_epsilon(episode):.3f}\n\n")
