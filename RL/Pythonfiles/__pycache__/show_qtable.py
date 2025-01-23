@@ -15,7 +15,7 @@ for i in range(0,60):
         ndata[i][j]=max(data[i*60+j])
 
 plt.figure(figsize=(10, 8))
-sns.heatmap(ndata, cmap="viridis", annot=False, cbar=True)
+sns.heatmap(ndata, cmap="viridis", annot=False, cbar=True,vmax=200,vmin=-200)
 plt.title("Q-Value Heatmap")
 plt.xlabel("Column Index")
 plt.ylabel("Row Index")

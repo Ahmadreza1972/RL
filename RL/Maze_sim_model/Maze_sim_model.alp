@@ -244,21 +244,6 @@ agent.wall.setColor(red);
 						<Type><![CDATA[double[][]]]></Type>        
 					</Properties>
 				</Variable>
-				<Variable Class="PlainVariable">
-					<Id>1737579747154</Id>
-					<Name><![CDATA[agent_loc]]></Name>
-					<X>-220</X><Y>170</Y>
-					<Label><X>10</X><Y>0</Y></Label>
-					<PublicFlag>false</PublicFlag>
-					<PresentationFlag>true</PresentationFlag>
-					<ShowLabel>true</ShowLabel>
-					<Properties SaveInSnapshot="true" Constant="false" AccessType="public" StaticVariable="false">
-						<Type><![CDATA[int []]]></Type>        
-						<InitialValue Class="CodeValue">
-							<Code><![CDATA[new int[]{}]]></Code>
-						</InitialValue>
-					</Properties>
-				</Variable>
 				<Variable Class="Parameter">
 					<Id>1737220367846</Id>
 					<Name><![CDATA[num_wall]]></Name>
@@ -500,6 +485,30 @@ agent.wall.setColor(red);
 						</ParameterEditor>
 					</Properties>                 
 				</Variable>
+				<Variable Class="Parameter">
+					<Id>1737583818593</Id>
+					<Name><![CDATA[agent_loc]]></Name>
+					<X>-510</X><Y>90</Y>
+					<Label><X>10</X><Y>0</Y></Label>
+					<PublicFlag>false</PublicFlag>
+					<PresentationFlag>true</PresentationFlag>
+					<ShowLabel>true</ShowLabel>
+					<Properties SaveInSnapshot="true" ModificatorType="STATIC">
+						<Type><![CDATA[int []]]></Type>
+						<UnitType><![CDATA[NONE]]></UnitType>
+						<SdArray>false</SdArray>
+						<DefaultValue Class="CodeValue">
+							<Code><![CDATA[new int[]{}]]></Code>
+						</DefaultValue>
+						<ParameterEditor>
+							<Id>1737583818591</Id>
+							<EditorContolType>TEXT_BOX</EditorContolType>
+							<MinSliderValue><![CDATA[0]]></MinSliderValue>
+							<MaxSliderValue><![CDATA[100]]></MaxSliderValue>
+							<DelimeterType>NO_DELIMETER</DelimeterType>
+						</ParameterEditor>
+					</Properties>                 
+				</Variable>
 				<Variable Class="CollectionVariable">
 					<Id>1737246115202</Id>
 					<Name><![CDATA[VALID_DIRECTIONS]]></Name>
@@ -523,7 +532,7 @@ agent.wall.setColor(red);
 				<Event>
 					<Id>1737246715802</Id>
 					<Name><![CDATA[action]]></Name>
-					<X>-400</X><Y>250</Y>
+					<X>-400</X><Y>230</Y>
 					<Label><X>10</X><Y>0</Y></Label>
 					<PublicFlag>false</PublicFlag>
 					<PresentationFlag>true</PresentationFlag>
@@ -2034,6 +2043,9 @@ try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 				<Parameter>
 					<ParameterName><![CDATA[qtableFile]]></ParameterName>
 				</Parameter>
+				<Parameter>
+					<ParameterName><![CDATA[agent_loc]]></ParameterName>
+				</Parameter>
 			</Parameters>			
 			<PresentationProperties>
 				<EnableZoomAndPanning>true</EnableZoomAndPanning>
@@ -2090,7 +2102,7 @@ cells[i][j]=5;
 if (root.matrix.get(i)[j]==2)
 cells[i][j]=-100;
 if (root.matrix.get(i)[j]==3)
-cells[i][j]=100;
+cells[i][j]=1000;
 }
 }
 pos = new int[]{(int) root.agent.getX(),(int) root.agent.getY()};

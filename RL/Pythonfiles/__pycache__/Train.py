@@ -14,6 +14,7 @@ from alpyne.sim import AnyLogicSim
 from interactive import print_board
 
 max_steps=500
+n_episodes=100
 step=0
 class PathfinderTrainer:
     # Do not change the order of these! They're based on the order of the collection in the sim
@@ -21,11 +22,11 @@ class PathfinderTrainer:
 
     def __init__(self, sim,
                  config_kwargs,
-                 lr=0.7,
+                 lr=0.9,
                  max_steps=max_steps,
-                 gamma=0.95,
+                 gamma=0.9,
                  max_epsilon=1.0, min_epsilon=0.05,
-                 decay_rate=0.0005):
+                 decay_rate=0.01):
         # model related vars
         self.sim = sim
         self.config_kwargs = config_kwargs
@@ -40,7 +41,7 @@ class PathfinderTrainer:
         self.q_table = np.zeros((60*60, 8))
 
     def get_epsilon(self, episode: int):
-        return 0#self.min_epsilon + (self.max_epsilon - self.min_epsilon) * np.exp(-self.decay_rate * episode)
+        return self.min_epsilon + (self.max_epsilon - self.min_epsilon) * np.exp(-self.decay_rate * episode)
 
     def get_action(self, state: int, episode: int) -> int:
         # episode < 0 == testing/evaluation == always use greedy
@@ -57,7 +58,8 @@ class PathfinderTrainer:
         visit_counter = np.zeros((60, 60))
         reward_totals = []
         for episode in range(n_eps):
-            do_log = True #log_every > 0 and episode % log_every == 0
+            
+            do_log = False #log_every > 0 and episode % log_every == 0
             if do_log:
                 print(f"\nEPISODE {episode} / {n_eps}")
 
@@ -66,7 +68,7 @@ class PathfinderTrainer:
 
             positions = [(i, j) for i, row in enumerate(this_config["matrix"]) for j, value in enumerate(row) if value == 1]
             agent_loc_ini=random.choice(positions)
-            this_config["agent_loc"]=agent_loc_ini
+            this_config.update({"agent_loc":agent_loc_ini})
             if config_overrides:
                 this_config.update(config_overrides)
             status = self.sim.reset(**this_config)
@@ -77,6 +79,7 @@ class PathfinderTrainer:
             reward_total = 0
 
             for step in range(self.max_steps):
+                stop_eps=False
                 if do_log:
                     if verbose_log:
                         print_board(status)
@@ -100,10 +103,12 @@ class PathfinderTrainer:
                 new_state = new_row * 60 + new_col  # 8x8 board
                 visit_counter[new_row][new_col]+=1
                 reward = status.observation['cells'][new_row][new_col]
-                reward_revisit=(-5*visit_counter[new_row][new_col])
+                if ((reward==1000) | (reward==-100)):
+                    stop_eps=True
+                reward_revisit=0#(-2*visit_counter[new_row][new_col])
                 reward_wall_dirict=0
                 if ((row==new_row) & (new_col==col)):
-                    reward_wall_dirict= -50
+                    reward_wall_dirict= -10
                 reward+=  (reward_wall_dirict+reward_revisit)  
                 reward_total += reward
 
@@ -115,10 +120,15 @@ class PathfinderTrainer:
                             reward + self.gamma * np.max(self.q_table[new_state]) - self.q_table[state][action])
 
                 status = new_status
+                if (stop_eps):
+                    print(f"ep: {episode}  step{step}")
+                    break
+                if step==n_eps-1:
+                    print(f"ep: {episode}  step{step}")
             reward_totals.append(reward_total)
-           # if do_log:
-                #print(f"Score counts: {dict(Counter(reward_totals))} | Epsilon: {self.get_epsilon(episode):.3f}\n\n")
-
+            if do_log:
+                print(f"Score counts: {dict(Counter(reward_totals))} | Epsilon: {self.get_epsilon(episode):.3f}\n\n")
+                
         return reward_totals
 
     def train(self, n_eps, **kwargs):
@@ -160,7 +170,7 @@ if __name__ == "__main__":
                                 decay_rate=0.005
                                 )
 
-    rewards_per_eps = trainer.train(10, log_every=50, verbose_log=False, print_initial_board=True)
+    rewards_per_eps = trainer.train(n_episodes, log_every=50, verbose_log=False, print_initial_board=True)
 
     with open(r"RL/Maze_sim_model/qTable.json", "w") as f:  # point to/move this file in the model to have it be loaded
         json.dump(trainer.q_table.tolist(), f)
