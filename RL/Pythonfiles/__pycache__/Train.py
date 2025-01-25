@@ -39,7 +39,7 @@ class PathfinderTrainer:
         self.max_epsilon = max_epsilon
         self.min_epsilon = min_epsilon
         self.decay_rate = decay_rate
-        file_path = "RL\Maze_sim_model\qTable_base2.json"
+        file_path = "RL\Maze_sim_model\qTable_base3.json"
         # Open the file and load its contents
         with open(file_path, "r") as file:
             data = json.load(file)
@@ -62,7 +62,7 @@ class PathfinderTrainer:
         verbose_log = kwargs.get('verbose_log', False)
         visit_counter = np.zeros((60, 60))
         reward_totals = []
-        secontlayer=True
+        secontlayer=False
         submatrices = []
         p=int(60/math.sqrt(n_eps)) 
         # Loop through the matrix to extract submatrices
@@ -140,29 +140,32 @@ class PathfinderTrainer:
                 new_state = new_row * 60 + new_col  # 8x8 board
                 visit_counter[new_row][new_col]+=1
                 reward = status.observation['cells'][new_row][new_col]
-                
+                seen = set()
+                History = [entry for entry in History if entry not in seen and not seen.add(entry)]        
+                        
                 if (reward==-100):
-                    seen = set()
-                    History = [entry for entry in History if entry not in seen and not seen.add(entry)]
-                   
-                    for item in History[round(9*len(History)/10):]:
-                        if in_train:
-                            histate=item[0][0]*60+item[0][1]
-                            histact=PathfinderTrainer.DIRECTIONS.index(item[1])
-                            self.q_table[histate][histact] = self.q_table[histate][histact] + self.lr * (
-                        10*reward + self.gamma * np.max(self.q_table[histate]) - self.q_table[histate][histact])
-                    stop_eps=True
-                if (reward==1000):
-                    seen = set()
-                    History = [entry for entry in History if entry not in seen and not seen.add(entry)]  
+
+                    mt=(reward*10)/(len(History))
+                    m=1
                     for item in History:
                         if in_train:
                             histate=item[0][0]*60+item[0][1]
                             histact=PathfinderTrainer.DIRECTIONS.index(item[1])
                             self.q_table[histate][histact] = self.q_table[histate][histact] + self.lr * (
-                        reward + self.gamma * np.max(self.q_table[histate]) - self.q_table[histate][histact])
+                               (mt*m)+ self.gamma * np.max(self.q_table[histate]) - self.q_table[histate][histact])
+                            m+=1
+                    stop_eps=True
+                if (reward==1000):
+                    for item in History:
+                        if in_train:
+                            mt=reward/(len(History))
+                            m=1
+                            histate=item[0][0]*60+item[0][1]
+                            histact=PathfinderTrainer.DIRECTIONS.index(item[1])
+                            self.q_table[histate][histact] = self.q_table[histate][histact] + self.lr * (
+                        (mt*m) + self.gamma * np.max(self.q_table[histate]) - self.q_table[histate][histact])
                     stop_eps=True                      
-                reward_revisit=(-20*visit_counter[new_row][new_col])
+                reward_revisit=(-10 *visit_counter[new_row][new_col])
                 reward_wall_dirict=0
                 if ((row==new_row) & (new_col==col)):
                     reward_wall_dirict= -1000
@@ -183,13 +186,16 @@ class PathfinderTrainer:
                 if step==max_steps-1:
                     print(f"ep: {episode}  step{step}")
                     seen = set()
-                    History = [entry for entry in History if entry not in seen and not seen.add(entry)]  
+                    History = [entry for entry in History if entry not in seen and not seen.add(entry)] 
+                    mt=-1000/(len(History))
+                    m=1 
                     for item in History:
                         if in_train:
                             histate=item[0][0]*60+item[0][1]
                             histact=PathfinderTrainer.DIRECTIONS.index(item[1])
                             self.q_table[histate][histact] = self.q_table[histate][histact] + self.lr * (
-                        -50 + self.gamma * np.max(self.q_table[histate]) - self.q_table[histate][histact])                    
+                        (mt*m) + self.gamma * np.max(self.q_table[histate]) - self.q_table[histate][histact])
+                            m+=1                    
 
             reward_totals.append(reward_total)
             if do_log:
