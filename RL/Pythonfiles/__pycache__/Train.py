@@ -39,7 +39,7 @@ class PathfinderTrainer:
         self.max_epsilon = max_epsilon
         self.min_epsilon = min_epsilon
         self.decay_rate = decay_rate
-        file_path = "RL\Maze_sim_model\qTable_base3.json"
+        file_path = "RL\Maze_sim_model\qTable.json"
         # Open the file and load its contents
         with open(file_path, "r") as file:
             data = json.load(file)
@@ -51,9 +51,13 @@ class PathfinderTrainer:
     def get_action(self, state: int, episode: int) -> int:
         # episode < 0 == testing/evaluation == always use greedy
         if episode < 0 or random.uniform(0, 1) > self.get_epsilon(episode):
+            
             action = np.argmax(self.q_table[state])
         else:
-            action = random.randint(0, self.q_table.shape[1] - 1)
+            availa_act=[i for i,item in enumerate(self.q_table[state]) if item<-500 ]
+            if len(availa_act)<8:
+                w=1
+            action =random.choice(availa_act) #random.randint(0, self.q_table.shape[1] - 1)
         return action
 
     def _execute(self, n_eps, in_train, config_overrides: dict = None, **kwargs):
