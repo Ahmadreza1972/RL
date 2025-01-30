@@ -28,12 +28,12 @@ class QLearningAgentWithGraph:
         self.rows, self.cols = self.maze.shape
 
         # Initialize the Q-table
-        self.q_table = np.zeros((self.rows, self.cols, len(DIRECTIONS)))
+        self.q_table = np.zeros((self.rows, self.cols, len(DIRECTIONS)))-500
 
         # Graph representation of the maze
         self.graph = nx.Graph()
         self._build_graph()
-        self.max_steps=500
+        self.max_steps=2000
     def _build_graph(self):
         """Build a graph representation of the maze."""
         for row in range(self.rows):
@@ -45,11 +45,20 @@ class QLearningAgentWithGraph:
                             self.graph.add_edge((row, col), (new_row, new_col), action=action)
 
     def choose_action(self, state):
+        availa_act=[]
+        availa_point=[]
+        for p,item in enumerate(DIRECTIONS):
+            nstate=self.step(state,p)
+            if(nstate==state):
+                continue
+            else:
+                availa_act.append(p)
+                availa_point.append(self.q_table[state][p])
         """Choose the next action using an epsilon-greedy policy."""
         if np.random.rand() < self.epsilon:
-            return np.random.choice(len(DIRECTIONS))  # Explore
-        row, col = state
-        return np.argmax(self.q_table[row, col])  # Exploit
+            return random.choice(availa_act)  # Explore
+        
+        return availa_act[np.argmax(availa_point)]  # Exploit
 
     def step(self, state, action):
         """Take a step in the environment."""
@@ -74,12 +83,12 @@ class QLearningAgentWithGraph:
             return -10
         return -500  # Walls or invalid moves
 
-    def train(self, n_episodes=1000, max_steps=500):
+    def train(self, n_episodes, max_steps):
         for episode in range(n_episodes):
             # Start at a random position
             start_positions = list(zip(*np.where(self.maze == 1)))
             state = random.choice(start_positions)
-
+            state=start_positions[0]
             for step in range(max_steps):
                 action = self.choose_action(state)
                 next_state = self.step(state, action)
@@ -98,6 +107,7 @@ class QLearningAgentWithGraph:
 
                 # Stop if the goal is reached
                 if self.maze[next_row, next_col] == 3:
+                    print(f"Goal reached in {episode} : {step} steps!")
                     break
 
     def save_q_table(self, filename):
@@ -186,7 +196,7 @@ class QLearningAgentWithGraph:
     
 if __name__ == "__main__":
     agent = QLearningAgentWithGraph("RL/matrix.csv")
-    agent.train(n_episodes=1000)
+    agent.train(4000,1000)
     agent.save_q_table("RL\Maze_sim_model\qTable.json")
-    agent.visualize_graph()
-    agent.run_test()
+    #agent.visualize_graph()
+    #agent.run_test()
