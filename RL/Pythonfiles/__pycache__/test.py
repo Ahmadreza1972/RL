@@ -28,7 +28,7 @@ class QLearningAgentWithGraph:
         self.rows, self.cols = self.maze.shape
 
         # Initialize the Q-table
-        self.q_table = np.zeros((self.rows, self.cols, len(DIRECTIONS)))-500
+        self.q_table = np.zeros((self.rows, self.cols, len(DIRECTIONS)))
 
         # Graph representation of the maze
         self.graph = nx.Graph()
@@ -71,17 +71,27 @@ class QLearningAgentWithGraph:
             return (new_row, new_col)
         return state  # If invalid move, remain in the same state
 
-    def get_reward(self, state):
+    def get_reward(self, ostate, state):
         """Return the reward for the given state."""
         row, col = state
+        orow,ocol=ostate
+        goal_point=list(zip(*np.where(self.maze == 3)))
         cell_value = self.maze[row, col]
+        
         if cell_value == 2:  # Hole
-            return -1000
+            reward=-1000
         elif cell_value == 3:  # Goal
-            return 5000
+            reward= 5000
         elif cell_value == 1:  # Empty cell
-            return -10
-        return -500  # Walls or invalid moves
+            reward= 0
+        elif cell_value == 4:
+            reward= 0
+        else:
+            reward=-500
+        ndistance=-(abs(goal_point[0][0]-row)+abs(goal_point[0][1]-col))
+        odistance=-(abs(goal_point[0][0]-orow)+abs(goal_point[0][1]-ocol)) 
+        distance= (odistance- ndistance) *100 
+        return reward+ distance # Walls or invalid moves
 
     def train(self, n_episodes, max_steps):
         for episode in range(n_episodes):
@@ -89,13 +99,15 @@ class QLearningAgentWithGraph:
             start_positions = list(zip(*np.where(self.maze == 1)))
             state = random.choice(start_positions)
             state=start_positions[0]
+            History=[]
             for step in range(max_steps):
                 action = self.choose_action(state)
                 next_state = self.step(state, action)
-                reward = self.get_reward(next_state)
-
-                # Update Q-value
+                reward = self.get_reward(state,next_state)
                 row, col = state
+                History.append(((row, col),action))
+                # Update Q-value
+                
                 next_row, next_col = next_state
                 best_next_action = np.max(self.q_table[next_row, next_col])
 
@@ -107,8 +119,29 @@ class QLearningAgentWithGraph:
 
                 # Stop if the goal is reached
                 if self.maze[next_row, next_col] == 3:
+                    seen = set()
+                    uHistory = [seen.add(entry) for entry in History if entry not in seen ]
+                    uHistory=seen
+                    mt=(reward)/(len(uHistory))
+                    m=1
+                    for item in uHistory:
+                        self.q_table[item[0][0]][item[0][1]][item[1]] = self.q_table[item[0][0]][item[0][1]][item[1]] +(mt*m)
+                        m+=1
                     print(f"Goal reached in {episode} : {step} steps!")
                     break
+
+                if self.maze[next_row, next_col] == 2:
+                    seen = set()
+                    uHistory = [seen.add(entry) for entry in History if entry not in seen ]
+                    uHistory=seen
+                    mt=(reward)/(len(uHistory))
+                    m=1
+                    for item in uHistory:
+                        self.q_table[item[0][0]][item[0][1]][item[1]] = self.q_table[item[0][0]][item[0][1]][item[1]] +(mt*m)
+                        m+=1
+                    print(f"hole reached in {episode} : {step} steps!")
+                    break
+            print(f"max loop reached in {episode} : {step} steps!")
 
     def save_q_table(self, filename):
         """Save the Q-table to a JSON file."""

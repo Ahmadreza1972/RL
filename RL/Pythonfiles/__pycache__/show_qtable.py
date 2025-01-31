@@ -25,7 +25,7 @@ directions = np.zeros((60, 60, 2))  # To store the direction vectors
 # Process the data to calculate mean and direction of max value
 for i in range(60):
     for j in range(60):
-        ndata[j][i] = np.max(data[i][j])  # Compute the mean
+        ndata[j][i] = np.average(data[i][j])  # Compute the mean
         max_index = np.argmax(data[i][j])  # Index of the maximum value
         if max_index == 0: 
             directions[j, i] = DIRECTIONS[0]
@@ -45,7 +45,7 @@ for i in range(60):
             directions[j, i] = DIRECTIONS[7]
 # Plot the heatmap
 plt.figure(figsize=(10, 8))
-sns.heatmap(ndata, cmap="viridis", annot=False, cbar=True)
+sns.heatmap(ndata, cmap="viridis", annot=False, cbar=True)#,vmax=500,vmin=-500
 plt.title("Q-Value Heatmap")
 plt.xlabel("Column Index")
 plt.ylabel("Row Index")
