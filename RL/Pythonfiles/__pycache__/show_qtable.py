@@ -21,11 +21,10 @@ with open(file_path, "r") as file:
 
 ndata = np.zeros((60, 60))
 directions = np.zeros((60, 60, 2))  # To store the direction vectors
-
 # Process the data to calculate mean and direction of max value
 for i in range(60):
     for j in range(60):
-        ndata[j][i] = np.average(data[i][j])  # Compute the mean
+        ndata[i][j] = np.average(data[i][j])  # Compute the mean
         max_index = np.argmax(data[i][j])  # Index of the maximum value
         if max_index == 0: 
             directions[j, i] = DIRECTIONS[0]
@@ -45,25 +44,25 @@ for i in range(60):
             directions[j, i] = DIRECTIONS[7]
 # Plot the heatmap
 plt.figure(figsize=(10, 8))
-sns.heatmap(ndata, cmap="viridis", annot=False, cbar=True)#,vmax=500,vmin=-500
+sns.heatmap(ndata, cmap="viridis", annot=False, cbar=True,vmax=5000,vmin=-5000)#,vmax=500,vmin=-500
 plt.title("Q-Value Heatmap")
 plt.xlabel("Column Index")
 plt.ylabel("Row Index")
 
 # Overlay arrows to indicate directions
-for i in range(60):
-    for j in range(60):
-        dy, dx = directions[i, j]
-        if dx != 0 or dy != 0:  # Only draw arrows for valid directions
-            plt.arrow(
-                j + 0.5,  # Arrow start x
-                i + 0.5,  # Arrow start y
-                dx * 0.3,  # Arrow delta x
-                -dy * 0.3,  # Arrow delta y (invert y for plotting)
-                color="red",
-                head_width=0.2,
-                head_length=0.2,
-                linewidth=0.5
-            )
+#for i in range(60):
+#    for j in range(60):
+#        dy, dx = directions[i, j]
+#        if dx != 0 or dy != 0:  # Only draw arrows for valid directions
+#            plt.arrow(
+#                j + 0.5,  # Arrow start x
+#                i + 0.5,  # Arrow start y
+#                dx * 0.3,  # Arrow delta x
+#                -dy * 0.3,  # Arrow delta y (invert y for plotting)
+#                color="red",
+#                head_width=0.2,
+#                head_length=0.2,
+#                linewidth=0.5
+#            )
 
 plt.show()
