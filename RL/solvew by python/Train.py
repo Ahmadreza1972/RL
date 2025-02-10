@@ -29,13 +29,7 @@ class QLearningAgentWithGraph:
         self.tothistory = np.zeros((self.rows, self.cols))
         # Graph representation of the maze
         self.graph = nx.Graph()
-        self.load_q_table(q_table_path)
-        
-    
-    def load_q_table(self, filename):
-        with open(filename, 'r') as f:
-            q_table_list = json.load(f)  
-        self.q_table = np.array(q_table_list)
+        self.q_table=np.zeros((60,60,8))
 
     def choose_action(self, state,episode,History):
         availa_act=[]
