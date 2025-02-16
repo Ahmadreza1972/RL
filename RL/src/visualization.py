@@ -1,4 +1,3 @@
-import networkx as nx
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
@@ -9,15 +8,15 @@ from config import Config
 class Visualization:
     def __init__(self):
         
-        # Graph representation of the maze
-        self.graph = nx.Graph()
         self._reader=Reader()
         self._param=Config()
         
     def visualize_graph(self):
-        """Visualize the graph representation of the maze."""
-        pos = {node: (node[1], -node[0]) for node in self.graph.nodes}  # Flip y-axis for visualization
-        nx.draw(self.graph, pos, with_labels=True, node_size=200, font_size=8)
+        """Visualize the maze as a grid."""
+        plt.figure(figsize=(8, 8))
+        plt.imshow(self._reader.read_maze(), cmap="gray_r", origin="upper")  # Use 'gray_r' for better contrast
+        plt.colorbar(label="Cell Type")
+        plt.title("Maze Visualization")
         plt.show()
         
     def show_qtable(self):    

@@ -6,11 +6,9 @@ def main():
     agent = QLearningAgentWithGraph()
     write= Writer()
     viso=Visualization()
-    
-    #agent.train()
-    
+    viso.visualize_graph()
+    agent.train()
     write.save_q_table(agent._q_table)
-      
     viso.show_qtable()
 
 
