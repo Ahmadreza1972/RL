@@ -1,10 +1,6 @@
 import numpy as np
-import pandas as pd
-import json
-
 import matplotlib.pyplot as plt
 import random
-import seaborn as sns 
 from config import Config
 from reader import Reader
 
